@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../model/passageiro.dart';
 
 class PassageiroDialog extends StatefulWidget {
-  final Passageiro passageiro;
+  final Passageiro? passageiro;
 
   // Construtor para receber um passageiro quando precisar edita-lo
   const PassageiroDialog({super.key, this.passageiro});
@@ -24,7 +24,7 @@ class _PassageiroDialogState extends State<PassageiroDialog> {
     // Verifica se foi enviado alguma tarefa para edição
     // Caso queira editar, copia-se essa tarefa
     if (widget.passageiro != null) {
-      _correntePassageiro = Passageiro.fromMap(widget.passageiro.toMap());
+      _correntePassageiro = Passageiro.fromMap(widget.passageiro!.toMap());
     }
 
     _titleController.text = _correntePassageiro.id.toString();

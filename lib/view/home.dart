@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
       subtitle: Text(passageiro.nome.toString()),
       onChanged: (taMarcado) {
         setState(() {
-          passageiro.presenca = taMarcado;
+          passageiro.presenca = taMarcado!;
         });
         _helper.update(passageiro);
       },

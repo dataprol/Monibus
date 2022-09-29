@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:monibus/view/home.dart';
 import 'package:monibus/view/passageiros.dart';
 import 'package:monibus/view/recuperarLogin.dart';
 import '../constantes.dart';
@@ -94,10 +95,6 @@ class _TelaLogin1State extends State<TelaLogin1> {
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => TelaListaPassageiros()));
-        },
         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
         child: Text(
           'Acessar',
@@ -109,6 +106,10 @@ class _TelaLogin1State extends State<TelaLogin1> {
             fontFamily: 'OpenSans',
           ),
         ),
+        onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => HomePage()));
+        },
       ),
     );
   }
