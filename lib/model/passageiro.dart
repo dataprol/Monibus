@@ -1,12 +1,12 @@
 class Passageiro {
-  int id;
-  String nome;
-  bool presenca;
+  int? id;
+  String? nome;
+  int? presenca;
 
   Passageiro({
-    this.id = 0,
-    this.nome = '',
-    this.presenca = false,
+    this.id,
+    this.nome,
+    this.presenca,
   });
 
   factory Passageiro.fromMap(Map<String, dynamic> json) => Passageiro(

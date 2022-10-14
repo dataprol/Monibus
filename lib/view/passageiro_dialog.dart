@@ -12,48 +12,53 @@ class PassageiroDialog extends StatefulWidget {
 }
 
 class _PassageiroDialogState extends State<PassageiroDialog> {
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final _idPassageiro = TextEditingController();
+  final _nomePassageiro = TextEditingController();
 
-  Passageiro _correntePassageiro = Passageiro();
+  Passageiro _atualPassageiro = Passageiro();
 
   @override
   void initState() {
     super.initState();
 
-    // Verifica se foi enviado alguma tarefa para edição
-    // Caso queira editar, copia-se essa tarefa
+    // Verifica se foi enviado algum passageiro para edição
+    // Caso queira editar, copia-se o passageiro
     if (widget.passageiro != null) {
-      _correntePassageiro = Passageiro.fromMap(widget.passageiro!.toMap());
+      print(widget.passageiro!.toMap());
+      _atualPassageiro = Passageiro.fromMap(widget.passageiro!.toMap());
+      _idPassageiro.text = _atualPassageiro.id.toString();
+      _nomePassageiro.text = _atualPassageiro.nome!;
     }
-
-    _titleController.text = _correntePassageiro.id.toString();
-    _descriptionController.text = _correntePassageiro.nome.toString();
   }
 
   @override
   void dispose() {
     super.dispose();
-    _titleController.clear();
-    _descriptionController.clear();
+    _idPassageiro.clear();
+    _nomePassageiro.clear();
   }
 
   @override
   Widget build(BuildContext context) {
+    ;
     return AlertDialog(
-      title: Text(
-          widget.passageiro == null ? 'Novo passageiro' : 'Editar passageiro'),
+      title: Text(widget.passageiro == null
+          ? 'Adicionar passageiro'
+          : 'Editar passageiro'),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          if (widget.passageiro != null)
+            TextField(
+              controller: _idPassageiro,
+              decoration: InputDecoration(labelText: 'Código'),
+              enabled: false,
+            ),
           TextField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Título'),
+              controller: _nomePassageiro,
+              decoration: InputDecoration(labelText: 'Nome'),
               autofocus: true),
-          TextField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Descrição')),
         ],
       ),
       actions: <Widget>[
@@ -66,10 +71,8 @@ class _PassageiroDialogState extends State<PassageiroDialog> {
         ElevatedButton(
           child: Text('Salvar'),
           onPressed: () {
-            _correntePassageiro.id = _titleController.value.text as int;
-            _correntePassageiro.nome = _descriptionController.text;
-
-            Navigator.of(context).pop(_correntePassageiro);
+            _atualPassageiro.nome = _nomePassageiro.text;
+            Navigator.of(context).pop(_atualPassageiro);
           },
         ),
       ],

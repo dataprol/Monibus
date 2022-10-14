@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:monibus/view/cadastrarPessoa.dart';
 import 'package:monibus/view/login.dart';
-import 'package:monibus/view/passageiros.dart';
 import '../constantes.dart';
 
 class TelaRecuperarSenha extends StatefulWidget {
@@ -43,8 +43,7 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => TelaLogin1()));
+          Navigator.pop(context);
         },
         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
         child: Text(
@@ -63,7 +62,11 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
 
   Widget _buildSignupBtn() {
     return GestureDetector(
-      onTap: () => print('"Cadastrar-se" foi pressionado!'),
+      onTap: () => {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => CadastrarPessoa())),
+        Navigator.pop(context)
+      },
       child: Text(
         'Se preferir, faça novo cadastro.',
         style: TextStyle(

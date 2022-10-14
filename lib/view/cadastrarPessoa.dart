@@ -1,25 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:monibus/view/cadastrarPessoa.dart';
-import 'package:monibus/view/listaPassageiros.dart';
-import 'package:monibus/view/recuperarLogin.dart';
+import 'package:monibus/view/login.dart';
 import '../constantes.dart';
 
-class TelaLogin1 extends StatefulWidget {
+class CadastrarPessoa extends StatefulWidget {
   @override
-  _TelaLogin1State createState() => _TelaLogin1State();
+  _CadastrarPessoaState createState() => _CadastrarPessoaState();
 }
 
-class _TelaLogin1State extends State<TelaLogin1> {
-  Widget _buildEmailTF() {
+class _CadastrarPessoaState extends State<CadastrarPessoa> {
+  Widget _buildNomePessoa() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'E-Mail',
-          style: kEtiquetaCampoEstilo_1,
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 60.0,
+          child: TextField(
+            keyboardType: TextInputType.emailAddress,
+            style: TextStyle(
+              fontFamily: 'OpenSans',
+            ),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.only(top: 14.0),
+              prefixIcon: Icon(
+                Icons.person,
+                color: Colors.red,
+              ),
+              hintText: 'Informe seu nome',
+              hintStyle: kDicaEstilo_1,
+            ),
+          ),
         ),
-        SizedBox(height: 10.0),
+      ],
+    );
+  }
+
+  Widget _buildEmailPessoa() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
         Container(
           alignment: Alignment.centerLeft,
           height: 60.0,
@@ -43,30 +63,25 @@ class _TelaLogin1State extends State<TelaLogin1> {
     );
   }
 
-  Widget _buildPasswordTF() {
+  Widget _buildTelefonePessoa() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'Senha',
-          style: kEtiquetaCampoEstilo_1,
-        ),
-        SizedBox(height: 10.0),
         Container(
           alignment: Alignment.centerLeft,
           height: 60.0,
           child: TextField(
-            obscureText: true,
+            keyboardType: TextInputType.emailAddress,
             style: TextStyle(
               fontFamily: 'OpenSans',
             ),
             decoration: InputDecoration(
               contentPadding: EdgeInsets.only(top: 14.0),
               prefixIcon: Icon(
-                Icons.lock,
+                Icons.phone,
                 color: Colors.red,
               ),
-              hintText: 'Informe sua senha',
+              hintText: 'Informe seu telefone',
               hintStyle: kDicaEstilo_1,
             ),
           ),
@@ -75,18 +90,49 @@ class _TelaLogin1State extends State<TelaLogin1> {
     );
   }
 
-  Widget _buildForgotPasswordBtn() {
-    return GestureDetector(
-      onTap: () => {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => TelaRecuperarSenha()))
-      },
-      child: Text(
-        'Esqueceu a senha.',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
+  Widget _buildSenhaPessoa() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 60.0,
+          child: TextField(
+            keyboardType: TextInputType.emailAddress,
+            style: TextStyle(
+              fontFamily: 'OpenSans',
+            ),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.only(top: 14.0),
+              prefixIcon: Icon(
+                Icons.password,
+                color: Colors.red,
+              ),
+              hintText: 'Informe uma nova senha',
+              hintStyle: kDicaEstilo_1,
+            ),
+          ),
         ),
-      ),
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 60.0,
+          child: TextField(
+            keyboardType: TextInputType.emailAddress,
+            style: TextStyle(
+              fontFamily: 'OpenSans',
+            ),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.only(top: 14.0),
+              prefixIcon: Icon(
+                Icons.password,
+                color: Colors.red,
+              ),
+              hintText: 'Repita a nova senha',
+              hintStyle: kDicaEstilo_1,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -95,9 +141,12 @@ class _TelaLogin1State extends State<TelaLogin1> {
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
       child: ElevatedButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
         child: Text(
-          'Acessar',
+          'Cadastrar',
           style: TextStyle(
             color: Colors.white,
             letterSpacing: 1.5,
@@ -105,30 +154,6 @@ class _TelaLogin1State extends State<TelaLogin1> {
             fontWeight: FontWeight.bold,
             fontFamily: 'OpenSans',
           ),
-        ),
-        onPressed: () {
-          if (kTipoUsuario == 'Monitor') {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ListaPassageiros()));
-          }
-          if (kTipoUsuario == 'Administrador') {}
-          if (kTipoUsuario == 'Passageiro') {}
-        },
-      ),
-    );
-  }
-
-  Widget _buildSignupBtn() {
-    return GestureDetector(
-      onTap: () => {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CadastrarPessoa()))
-      },
-      child: Text(
-        'Cadastrar-se.',
-        style: TextStyle(
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -167,7 +192,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
                         ),
                       ),
                       Text(
-                        'Acesso',
+                        'Cadastro',
                         style: TextStyle(
                           fontFamily: 'OpenSans',
                           fontSize: 30.0,
@@ -175,25 +200,14 @@ class _TelaLogin1State extends State<TelaLogin1> {
                         ),
                       ),
                       SizedBox(height: 30.0),
-                      _buildEmailTF(),
+                      _buildNomePessoa(),
+                      _buildEmailPessoa(),
+                      _buildTelefonePessoa(),
+                      _buildSenhaPessoa(),
                       SizedBox(
                         height: 30.0,
                       ),
-                      _buildPasswordTF(),
-                      SizedBox(
-                        height: 15.0,
-                      ),
                       _buildLoginBtn(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildForgotPasswordBtn(),
-                          SizedBox(
-                            width: 50.0,
-                          ),
-                          _buildSignupBtn(),
-                        ],
-                      )
                     ],
                   ),
                 ),
