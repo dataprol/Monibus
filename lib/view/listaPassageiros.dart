@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:monibus/view/fotografarPessoa.dart';
-import '/domain/entity/passageiro_entity.dart';
-import '/model/passageiro.dart';
-import '/view/passageiro_dialog.dart';
+import '../domain/entity/passageiroEntity.dart';
+import '../model/passageiroModel.dart';
+import 'passageiroDialog.dart';
 
 class ListaPassageiros extends StatefulWidget {
   const ListaPassageiros({Key? key}) : super(key: key);
@@ -62,8 +62,8 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
     final passageiro = _passageiroLista[index];
     return CheckboxListTile(
       value: passageiro.presenca == 1,
-      title: Text(passageiro.id.toString()),
-      subtitle: Text(passageiro.nome.toString()),
+      title: Text(passageiro.idPassageiro.toString()),
+      subtitle: Text(passageiro.nomePassageiro.toString()),
       onChanged: (taMarcado) {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => FotografarPessoa()));
@@ -162,7 +162,7 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
     });
 
     try {
-      _tabelaPassageiro.delete(removePassageiro.id!);
+      _tabelaPassageiro.delete(removePassageiro.idPassageiro!);
     } catch (e) {
       const AlertDialog(
         title: Text("Erro"),
@@ -171,7 +171,8 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Passageiro \"${removePassageiro.nome}\" removido."),
+      content:
+          Text("Passageiro \"${removePassageiro.nomePassageiro}\" removido."),
       action: SnackBarAction(
         label: "Desfazer",
         onPressed: () {

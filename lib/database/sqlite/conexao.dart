@@ -7,6 +7,7 @@ class Conexao {
   static late Database _db;
   static bool _iniciado = false;
   static Future<Database> iniciar() async {
+    print(kTabelaCriar);
     if (!_iniciado) {
       var bancoDadosCaminho = await getDatabasesPath();
       bancoDadosCaminho = join(bancoDadosCaminho, "monibus.db");

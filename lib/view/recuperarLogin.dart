@@ -102,7 +102,7 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        kAplicativo,
+                        kAplicativoNome,
                         style: TextStyle(
                           fontFamily: 'OpenSans',
                           fontSize: 18.0,

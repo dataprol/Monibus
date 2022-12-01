@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/passageiro.dart';
+import 'package:monibus/model/passageiroModel.dart';
 
 class PassageiroDialog extends StatefulWidget {
   final Passageiro? passageiro;
@@ -24,10 +24,9 @@ class _PassageiroDialogState extends State<PassageiroDialog> {
     // Verifica se foi enviado algum passageiro para edição
     // Caso queira editar, copia-se o passageiro
     if (widget.passageiro != null) {
-      print(widget.passageiro!.toMap());
-      _atualPassageiro = Passageiro.fromMap(widget.passageiro!.toMap());
-      _idPassageiro.text = _atualPassageiro.id.toString();
-      _nomePassageiro.text = _atualPassageiro.nome!;
+      _atualPassageiro = Passageiro.fromJson(widget.passageiro!.toJson());
+      _idPassageiro.text = _atualPassageiro.idPassageiro.toString();
+      _nomePassageiro.text = _atualPassageiro.nomePassageiro!;
     }
   }
 
@@ -40,7 +39,6 @@ class _PassageiroDialogState extends State<PassageiroDialog> {
 
   @override
   Widget build(BuildContext context) {
-    ;
     return AlertDialog(
       title: Text(widget.passageiro == null
           ? 'Adicionar passageiro'
@@ -71,7 +69,7 @@ class _PassageiroDialogState extends State<PassageiroDialog> {
         ElevatedButton(
           child: Text('Salvar'),
           onPressed: () {
-            _atualPassageiro.nome = _nomePassageiro.text;
+            _atualPassageiro.nomePassageiro = _nomePassageiro.text;
             Navigator.of(context).pop(_atualPassageiro);
           },
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'view/login.dart';
+import 'package:monibus/view/login.dart';
 
 void main() {
   runApp(const Principal());

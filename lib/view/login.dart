@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:monibus/constantes.dart';
 import 'package:monibus/view/cadastrarPessoa.dart';
-import 'package:monibus/view/listaPassageiros.dart';
 import 'package:monibus/view/recuperarLogin.dart';
-import '../constantes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:another_flushbar/flushbar.dart';
+
+import '../model/autenticacaoModel.dart';
+import '../service/autenticacaoService.dart';
 
 class TelaLogin1 extends StatefulWidget {
   @override
@@ -11,12 +15,30 @@ class TelaLogin1 extends StatefulWidget {
 }
 
 class _TelaLogin1State extends State<TelaLogin1> {
-  Widget _buildEmailTF() {
+  late final TextEditingController _cUsuario, _cSenha;
+  late String _cUsuarioAtual;
+  late String _cToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _cUsuario = TextEditingController();
+    _cSenha = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _cUsuario.dispose();
+    _cSenha.dispose();
+    super.dispose();
+  }
+
+  Widget _bldUsuario() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'E-Mail',
+          'Usuário',
           style: kEtiquetaCampoEstilo_1,
         ),
         SizedBox(height: 10.0),
@@ -24,6 +46,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
           alignment: Alignment.centerLeft,
           height: 60.0,
           child: TextField(
+            controller: _cUsuario,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(
               fontFamily: 'OpenSans',
@@ -34,7 +57,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
                 Icons.email,
                 color: Colors.red,
               ),
-              hintText: 'Informe seu e-Mail',
+              hintText: 'Informe seu nome de usuário',
               hintStyle: kDicaEstilo_1,
             ),
           ),
@@ -43,7 +66,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
     );
   }
 
-  Widget _buildPasswordTF() {
+  Widget _bldSenha() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -56,6 +79,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
           alignment: Alignment.centerLeft,
           height: 60.0,
           child: TextField(
+            controller: _cSenha,
             obscureText: true,
             style: TextStyle(
               fontFamily: 'OpenSans',
@@ -75,7 +99,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
     );
   }
 
-  Widget _buildForgotPasswordBtn() {
+  Widget _bldForgotPasswordBtn() {
     return GestureDetector(
       onTap: () => {
         Navigator.push(context,
@@ -90,7 +114,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
     );
   }
 
-  Widget _buildLoginBtn() {
+  Widget _bldLoginBtn() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
@@ -107,18 +131,16 @@ class _TelaLogin1State extends State<TelaLogin1> {
           ),
         ),
         onPressed: () {
-          if (kTipoUsuario == 'Monitor') {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ListaPassageiros()));
+          var login = _validarUsuario(context);
+          if (login != false) {
+            _autenticarUsuario(login, context);
           }
-          if (kTipoUsuario == 'Administrador') {}
-          if (kTipoUsuario == 'Passageiro') {}
         },
       ),
     );
   }
 
-  Widget _buildSignupBtn() {
+  Widget _bldSignupBtn() {
     return GestureDetector(
       onTap: () => {
         Navigator.push(
@@ -136,6 +158,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
 
   @override
   Widget build(BuildContext context) {
+    _leiaUsuarioMemLocal();
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
@@ -159,7 +182,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        kAplicativo,
+                        kAplicativoNome,
                         style: TextStyle(
                           fontFamily: 'OpenSans',
                           fontSize: 18.0,
@@ -175,23 +198,23 @@ class _TelaLogin1State extends State<TelaLogin1> {
                         ),
                       ),
                       SizedBox(height: 30.0),
-                      _buildEmailTF(),
+                      _bldUsuario(),
                       SizedBox(
                         height: 30.0,
                       ),
-                      _buildPasswordTF(),
+                      _bldSenha(),
                       SizedBox(
                         height: 15.0,
                       ),
-                      _buildLoginBtn(),
+                      _bldLoginBtn(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildForgotPasswordBtn(),
+                          _bldForgotPasswordBtn(),
                           SizedBox(
                             width: 50.0,
                           ),
-                          _buildSignupBtn(),
+                          _bldSignupBtn(),
                         ],
                       )
                     ],
@@ -203,5 +226,64 @@ class _TelaLogin1State extends State<TelaLogin1> {
         ),
       ),
     );
+  }
+
+  _leiaUsuarioMemLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    const chave = kAPI_Chave_Usuario;
+    _cUsuarioAtual = prefs.getString(chave) ?? 'nenhum usuário';
+    _cToken = prefs.getString(kAPI_Chave_Token) ?? 'nenhum token';
+    if (_cUsuarioAtual != 'nenhum usuário' && _cToken != 'nenhum token') {
+      print('Usuário e Token encontrados!');
+    } else {
+      print('Nenhum usuário salvo!');
+    }
+
+    _salveUsuarioMemLocal() async {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString(kAPI_Chave_Usuario, _cUsuario.text);
+      prefs.setString(kAPI_Chave_Token, _cToken);
+    }
+  }
+
+  _validarUsuario(context) {
+    var login = AutenticacaoModel(usuario: _cUsuario.text, senha: _cSenha.text);
+    var lValido = true;
+
+    if (!login.validoUsuario) {
+      Flushbar(
+        title: 'Usuário inválido!',
+        message: 'O nome de usuário não pode conter somente números!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    } else if (!login.validoSenha) {
+      Flushbar(
+        title: 'Senha inválida!',
+        message:
+            'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    }
+
+    return lValido ? login : false;
+  }
+
+  Future<void> _autenticarUsuario(AutenticacaoModel login, context) async {
+    AutenticacaoService apiLogin = AutenticacaoService();
+    final resultado = await apiLogin.validarUsuario(login);
+
+    if (resultado.isError()) {
+      Flushbar(
+        title: 'Falha de Autenticação!',
+        message: resultado.getError().toString(),
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      return;
+    } else {
+      // obter o token e armazenar
+      print('token: ' + resultado.getSuccess()?.data);
+    }
   }
 }

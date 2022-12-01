@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:monibus/database/sqlite/conexao.dart';
 import 'package:sqflite/sqflite.dart';
-import '/model/passageiro.dart';
+import '../../model/passageiroModel.dart';
+import 'package:monibus/constantes.dart';
 
 class PassageiroEntidade {
   static final PassageiroEntidade _instance = PassageiroEntidade.internal();
@@ -10,7 +11,8 @@ class PassageiroEntidade {
 
   Future<Passageiro> save(Passageiro passageiro) async {
     Database bancoDados = await Conexao.iniciar();
-    passageiro.id = await bancoDados.insert('passageiros', passageiro.toMap());
+    passageiro.idPassageiro =
+        await bancoDados.insert('passageiros', passageiro.toJson());
     return passageiro;
   }
 
@@ -20,7 +22,7 @@ class PassageiroEntidade {
         columns: ['id', 'nome', 'presenca'], where: 'id = ?', whereArgs: [id]);
 
     if (maps.isNotEmpty) {
-      return Passageiro.fromMap(maps.first);
+      return Passageiro.fromJson(maps.first);
     } else {
       return Passageiro();
     }
@@ -28,16 +30,17 @@ class PassageiroEntidade {
 
   Future<List<Passageiro>> getAll() async {
     Database bancoDados = await Conexao.iniciar();
-    List listaMap = await bancoDados.rawQuery("SELECT * FROM passageiros");
-    List<Passageiro> stuffList =
-        listaMap.map((x) => Passageiro.fromMap(x)).toList();
-    return stuffList;
+    List listaMap =
+        await bancoDados.rawQuery("SELECT * FROM $kLocalTabelaPassageiros");
+    List<Passageiro> passageirosLista =
+        listaMap.map((x) => Passageiro.fromJson(x)).toList();
+    return passageirosLista;
   }
 
   Future<int> update(Passageiro passageiro) async {
     Database bancoDados = await Conexao.iniciar();
-    return await bancoDados.update('passageiros', passageiro.toMap(),
-        where: 'id = ?', whereArgs: [passageiro.id]);
+    return await bancoDados.update(kLocalTabelaPassageiros, passageiro.toJson(),
+        where: 'id = ?', whereArgs: [passageiro.idPassageiro]);
   }
 
   Future<int> delete(int id) async {
@@ -48,6 +51,6 @@ class PassageiroEntidade {
 
   Future<int> deleteAll() async {
     Database bancoDados = await Conexao.iniciar();
-    return await bancoDados.rawDelete("DELETE * from passageiros");
+    return await bancoDados.rawDelete("DELETE * from $kLocalTabelaPassageiros");
   }
 }
