@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:monibus/view/fotografarPessoa.dart';
+import '../view/passageiroForm.dart';
 import '../domain/entity/passageiroEntity.dart';
 import '../model/passageiroModel.dart';
-import 'passageiroDialog.dart';
+import '../service/autenticacaoService.dart';
 
 class ListaPassageiros extends StatefulWidget {
   const ListaPassageiros({Key? key}) : super(key: key);
@@ -12,6 +12,7 @@ class ListaPassageiros extends StatefulWidget {
 }
 
 class _ListaPassageirosState extends State<ListaPassageiros> {
+  AutenticacaoService apiLogin = AutenticacaoService();
   List<Passageiro> _passageiroLista = [];
   PassageiroEntidade _tabelaPassageiro = PassageiroEntidade();
   bool _loading = true;
@@ -19,29 +20,58 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
   @override
   void initState() {
     super.initState();
-    try {
-      _tabelaPassageiro.getAll().then((list) {
-        setState(() {
-          _passageiroLista = list;
-          _loading = false;
-        });
+    _tabelaPassageiro.getAll().then((list) {
+      setState(() {
+        _passageiroLista = list;
+        _loading = false;
       });
-    } catch (e) {
-      const AlertDialog(
-        title: Text("Erro"),
-        content: Text("Falha ao tentar obter lista de passageiros!"),
-      );
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Lista de Passageiros')),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add), onPressed: _adicionaNovoPassageiro),
-      body: _buildPassageiroLista(),
-    );
+        appBar: AppBar(
+          title: Text('Lista de Passageiros'),
+        ),
+        drawer: Drawer(
+          backgroundColor: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      border: Border.all(
+                          width: 0.0,
+                          color: Color.fromARGB(206, 255, 255, 255))),
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.fromLTRB(15, 50, 15, 15),
+                  child: Text("Usuário X",
+                      style: Theme.of(context).textTheme.titleLarge)),
+              Container(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                  alignment: Alignment.centerLeft,
+                  height: 50.0,
+                  child: TextButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () => apiLogin.desconectarUsuario(context),
+                    child: Row(children: [
+                      const Icon(Icons.exit_to_app, color: Colors.black),
+                      Text(" Sair",
+                          style: Theme.of(context).textTheme.titleMedium),
+                    ]),
+                  )),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add), onPressed: _adicionaNovoPassageiro),
+        body: Padding(
+          padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
+          child: _buildPassageiroLista(),
+        ));
   }
 
   Widget _buildPassageiroLista() {
@@ -62,11 +92,12 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
     final passageiro = _passageiroLista[index];
     return CheckboxListTile(
       value: passageiro.presenca == 1,
-      title: Text(passageiro.idPassageiro.toString()),
-      subtitle: Text(passageiro.nomePassageiro.toString()),
+      title: Text(passageiro.id.toString()),
+      subtitle: Text(passageiro.nome.toString()),
       onChanged: (taMarcado) {
-        Navigator.push(context,
+/*         Navigator.push(context,
             MaterialPageRoute(builder: (context) => FotografarPessoa()));
+ */
         setState(() {
           passageiro.presenca = (taMarcado == true ? 1 : 0);
         });
@@ -89,7 +120,7 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
         extentRatio: 0.25,
         children: [
           SlidableAction(
-            label: 'Alterar',
+            label: 'Editar',
             backgroundColor: Colors.blue,
             icon: Icons.edit,
             onPressed: (context) {
@@ -104,7 +135,7 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
         extentRatio: 0.25,
         children: [
           SlidableAction(
-            label: 'Excluir',
+            label: 'Remover',
             backgroundColor: Colors.red,
             icon: Icons.delete,
             onPressed: (context) {
@@ -120,20 +151,18 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
 
   Future _adicionaNovoPassageiro(
       {Passageiro? passageiroAlterado, int? index}) async {
-    final passageiro = await showDialog<Passageiro>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return PassageiroDialog(passageiro: passageiroAlterado);
-      },
-    );
-
+    Passageiro? passageiro = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                PassageiroForm(passageiro: passageiroAlterado)));
     if (passageiro != null) {
       setState(() {
         if (index == null) {
-          _passageiroLista.add(passageiro);
           try {
-            _tabelaPassageiro.save(passageiro);
+            _tabelaPassageiro
+                .save(passageiro)
+                .then((obj) => _passageiroLista.add(obj));
           } catch (e) {
             const AlertDialog(
               title: Text("Erro"),
@@ -162,7 +191,7 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
     });
 
     try {
-      _tabelaPassageiro.delete(removePassageiro.idPassageiro!);
+      _tabelaPassageiro.delete(removePassageiro.id!);
     } catch (e) {
       const AlertDialog(
         title: Text("Erro"),
@@ -171,8 +200,7 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content:
-          Text("Passageiro \"${removePassageiro.nomePassageiro}\" removido."),
+      content: Text("Passageiro \"${removePassageiro.nome}\" removido."),
       action: SnackBarAction(
         label: "Desfazer",
         onPressed: () {
@@ -186,8 +214,8 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
                 content: Text("Falha ao tentar restaurar passageiro!"),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Tá'),
+                    onPressed: () => voltarTelaAnterior,
+                    child: const Text('Ok'),
                   ),
                 ],
               );
@@ -196,5 +224,9 @@ class _ListaPassageirosState extends State<ListaPassageiros> {
         },
       ),
     ));
+  }
+
+  void voltarTelaAnterior() {
+    Navigator.pop(context);
   }
 }

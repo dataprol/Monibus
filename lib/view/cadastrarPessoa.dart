@@ -1,8 +1,14 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:monibus/service/pessoaService.dart';
+import 'package:multiple_result/multiple_result.dart';
 import '../constantes.dart';
 import 'package:string_validator/string_validator.dart' as validador;
+
+import '../model/PessoaModel.dart';
+import '../service/pessoaService.dart';
 
 class CadastrarPessoa extends StatefulWidget {
   @override
@@ -215,70 +221,10 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          var lValido = true;
-
-          if (_cNome.text.isEmpty ||
-              _cNome.text.length < 8 ||
-              validador.isNumeric(_cNome.text)) {
-            Flushbar(
-              title: 'Nome inválido!',
-              message:
-                  'O nome precisa possuir letras e ter o mínimo de 8 caracteres!',
-              duration: Duration(seconds: 5),
-            ).show(context);
-            lValido = false;
-          } else if (_cEmail.text.isEmpty || !validador.isEmail(_cEmail.text)) {
-            Flushbar(
-              title: 'E-mail inválido!',
-              message:
-                  'Informe, corretamente, um endereço de correio eletrônico(e-mail)!',
-              duration: Duration(seconds: 5),
-            ).show(context);
-            lValido = false;
-          } else if (_cTelefone.text.isEmpty ||
-              _cTelefone.text.length < 10 ||
-              !validador.isNumeric(_cTelefone.text)) {
-            Flushbar(
-              title: 'Telefone inválido!',
-              message: 'Informe, corretamente, um telefone!',
-              duration: Duration(seconds: 5),
-            ).show(context);
-            lValido = false;
-          } else if (_cUsuario.text.isEmpty ||
-              _cUsuario.text.length < 4 ||
-              validador.isNumeric(_cUsuario.text)) {
-            Flushbar(
-              title: 'Usuário inválido!',
-              message:
-                  'Informe, corretamente, um nome de usuário de acesso ao sistema!',
-              duration: Duration(seconds: 5),
-            ).show(context);
-            lValido = false;
-          } else if (_cSenha.text.isEmpty ||
-              _cSenha.text.length < 8 ||
-              validador.isNumeric(_cSenha.text) ||
-              validador.isAlpha(_cSenha.text) ||
-              validador.isAlphanumeric(_cSenha.text)) {
-            Flushbar(
-              title: 'Senha não permitida!',
-              message: 'A senha precisa ter o mínimo de 8 caracteres' +
-                  ' contendo letras e números e pelo menos um caracter ' +
-                  'diferente de letra e número!',
-              duration: Duration(seconds: 5),
-            ).show(context);
-            lValido = false;
-          } else if (_cSenha2.text != _cSenha.text) {
-            Flushbar(
-              title: 'Senha não confere!',
-              message: 'A segunda senha está diferente da primeira informada!',
-              duration: Duration(seconds: 5),
-            ).show(context);
-            lValido = false;
-          }
-
+          var lValido = bldValidacao();
           if (lValido) {
             // cadastrar usuário e retornar à tela de login
-
+            bldFinalizaCadastro(context);
             //Navigator.pop(context);
           }
         },
@@ -356,5 +302,96 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
         ),
       ),
     );
+  }
+
+  bool bldValidacao() {
+    var lValido = true;
+    if (_cNome.text.isEmpty ||
+        _cNome.text.length < 8 ||
+        validador.isNumeric(_cNome.text)) {
+      Flushbar(
+        title: 'Nome inválido!',
+        message:
+            'O nome precisa possuir letras e ter o mínimo de 8 caracteres!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    } else if (_cEmail.text.isEmpty || !validador.isEmail(_cEmail.text)) {
+      Flushbar(
+        title: 'E-mail inválido!',
+        message:
+            'Informe, corretamente, um endereço de correio eletrônico(e-mail)!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    } else if (_cTelefone.text.isEmpty ||
+        _cTelefone.text.length < 10 ||
+        !validador.isNumeric(_cTelefone.text)) {
+      Flushbar(
+        title: 'Telefone inválido!',
+        message: 'Informe, corretamente, um telefone!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    } else if (_cUsuario.text.isEmpty ||
+        _cUsuario.text.length < 4 ||
+        validador.isNumeric(_cUsuario.text)) {
+      Flushbar(
+        title: 'Usuário inválido!',
+        message:
+            'Informe, corretamente, um nome de usuário de acesso ao sistema!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    } else if (_cSenha.text.isEmpty ||
+        _cSenha.text.length < 8 ||
+        validador.isNumeric(_cSenha.text) ||
+        validador.isAlpha(_cSenha.text) ||
+        validador.isAlphanumeric(_cSenha.text)) {
+      Flushbar(
+        title: 'Senha não permitida!',
+        message:
+            'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter diferente de letra e número!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    } else if (_cSenha2.text != _cSenha.text) {
+      Flushbar(
+        title: 'Senha não confere!',
+        message: 'A segunda senha está diferente da primeira informada!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
+    }
+    return lValido;
+  }
+
+  Future<Result> bldFinalizaCadastro(context) async {
+    final resultado = await PessoasService.inserirPessoa(
+        pessoa: Pessoa(
+            idPessoa: 0,
+            nomePessoa: _cNome.text,
+            emailPessoa: _cEmail.text,
+            telefone1Pessoa: _cTelefone.text,
+            usuarioPessoa: _cUsuario.text,
+            senhaPessoa: _cSenha.text));
+    if (resultado.isError()) {
+      Flushbar(
+        title: 'Falha na inserção!',
+        message: resultado.getError().toString(),
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      return resultado;
+    } else {
+      if (kDebugMode) {
+        print('retorno: ${resultado.getSuccess()}');
+      }
+      Flushbar(
+        title: 'Sucesso!',
+        message: 'Cadastro realizado com sucesso!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+    }
+    return resultado;
   }
 }

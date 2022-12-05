@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:monibus/constantes.dart';
+import 'package:monibus/view/listaPassageiros.dart';
 import 'package:monibus/view/login.dart';
+import 'service/autenticacaoService.dart';
 
 void main() {
   runApp(const Principal());
@@ -8,12 +11,30 @@ void main() {
 class Principal extends StatelessWidget {
   const Principal({super.key});
 
+  Future<bool> checkHome() async {
+    AutenticacaoService apiLogin = AutenticacaoService();
+    String token = await apiLogin.lerTokenMemLocal();
+    return token.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Projeto Monibus',
-      home: TelaLogin1(),
+      theme: ThemeData(
+        primarySwatch: kCorPrimaria,
+      ),
+      home: FutureBuilder(
+          future: checkHome(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return (snapshot.data ?? false)
+                ? const ListaPassageiros()
+                : TelaLogin();
+          }),
     );
   }
 }

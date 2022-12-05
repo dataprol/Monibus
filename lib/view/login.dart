@@ -1,22 +1,25 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:monibus/constantes.dart';
-import 'package:monibus/view/cadastrarPessoa.dart';
-import 'package:monibus/view/recuperarLogin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:another_flushbar/flushbar.dart';
-
+import 'package:monibus/constantes.dart';
+import 'package:monibus/view/cadastrarPessoa.dart';
+import 'package:monibus/view/listaPassageiros.dart';
+import 'package:monibus/view/recuperarLogin.dart';
 import '../model/autenticacaoModel.dart';
 import '../service/autenticacaoService.dart';
 
-class TelaLogin1 extends StatefulWidget {
+class TelaLogin extends StatefulWidget {
   @override
-  _TelaLogin1State createState() => _TelaLogin1State();
+  _TelaLoginState createState() => _TelaLoginState();
 }
 
-class _TelaLogin1State extends State<TelaLogin1> {
+class _TelaLoginState extends State<TelaLogin> {
+  AutenticacaoService apiLogin = AutenticacaoService();
   late final TextEditingController _cUsuario, _cSenha;
-  late String _cUsuarioAtual;
   late String _cToken;
 
   @override
@@ -133,20 +136,20 @@ class _TelaLogin1State extends State<TelaLogin1> {
         onPressed: () {
           var login = _validarUsuario(context);
           if (login != false) {
-            _autenticarUsuario(login, context);
+            _autenticarUsuario(context, login);
           }
         },
       ),
     );
   }
 
-  Widget _bldSignupBtn() {
+  Widget _bldCadastrarBtn() {
     return GestureDetector(
       onTap: () => {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => CadastrarPessoa()))
       },
-      child: Text(
+      child: const Text(
         'Cadastrar-se.',
         style: TextStyle(
           color: Colors.red,
@@ -158,7 +161,6 @@ class _TelaLogin1State extends State<TelaLogin1> {
 
   @override
   Widget build(BuildContext context) {
-    _leiaUsuarioMemLocal();
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
@@ -166,7 +168,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
           onTap: () => FocusScope.of(context).unfocus(),
           child: Stack(
             children: <Widget>[
-              Container(
+              SizedBox(
                 height: double.infinity,
                 width: double.infinity,
               ),
@@ -214,7 +216,7 @@ class _TelaLogin1State extends State<TelaLogin1> {
                           SizedBox(
                             width: 50.0,
                           ),
-                          _bldSignupBtn(),
+                          _bldCadastrarBtn(),
                         ],
                       )
                     ],
@@ -228,22 +230,15 @@ class _TelaLogin1State extends State<TelaLogin1> {
     );
   }
 
-  _leiaUsuarioMemLocal() async {
+/*   _lerUsuarioMemLocal() {
+    var loginUser = apiLogin.lerUsuarioMemLocal();
+    return loginUser;
+  }
+ */
+  _salvarUsuarioMemLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    const chave = kAPI_Chave_Usuario;
-    _cUsuarioAtual = prefs.getString(chave) ?? 'nenhum usuário';
-    _cToken = prefs.getString(kAPI_Chave_Token) ?? 'nenhum token';
-    if (_cUsuarioAtual != 'nenhum usuário' && _cToken != 'nenhum token') {
-      print('Usuário e Token encontrados!');
-    } else {
-      print('Nenhum usuário salvo!');
-    }
-
-    _salveUsuarioMemLocal() async {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString(kAPI_Chave_Usuario, _cUsuario.text);
-      prefs.setString(kAPI_Chave_Token, _cToken);
-    }
+    prefs.setString(kAPI_Chave_Usuario, _cUsuario.text);
+    prefs.setString(kAPI_Chave_Token, _cToken);
   }
 
   _validarUsuario(context) {
@@ -270,20 +265,46 @@ class _TelaLogin1State extends State<TelaLogin1> {
     return lValido ? login : false;
   }
 
-  Future<void> _autenticarUsuario(AutenticacaoModel login, context) async {
-    AutenticacaoService apiLogin = AutenticacaoService();
+  Future<void> _autenticarUsuario(context, AutenticacaoModel login) async {
     final resultado = await apiLogin.validarUsuario(login);
 
     if (resultado.isError()) {
       Flushbar(
         title: 'Falha de Autenticação!',
-        message: resultado.getError().toString(),
+        message: resultado.getError(),
         duration: const Duration(seconds: 5),
       ).show(context);
       return;
     } else {
       // obter o token e armazenar
-      print('token: ' + resultado.getSuccess()?.data);
+      var resposta = resultado.getSuccess()!.data['data']['token'];
+      resposta ??= '';
+      _cToken = resposta;
+      _salvarUsuarioMemLocal();
+      if (_cToken.isNotEmpty) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const ListaPassageiros()));
+      }
     }
   }
+
+/*   Future<void> _validarToken(context, String token, String usuario) async {
+    final resultado = await apiLogin.validarToken(token);
+
+    if (resultado.isError()) {
+      // Permanece na tela de login
+      var resposta = resultado.getError();
+      if (kDebugMode) {
+        print('Resposta negativa: $resposta');
+      }
+    } else {
+      var resposta = resultado.getSuccess()!.data['message'];
+      resposta ??= 'é nulo.';
+      if (kDebugMode) {
+        print('Resposta positiva: $resposta');
+      }
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const ListaPassageiros()));
+    }
+  } */
 }

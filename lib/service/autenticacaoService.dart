@@ -1,10 +1,15 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:monibus/constantes.dart';
+import 'package:monibus/view/login.dart';
 import 'package:multiple_result/multiple_result.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/autenticacaoModel.dart';
+import '../view/listaPassageiros.dart';
 
 class AutenticacaoService {
   late Dio _api;
@@ -12,32 +17,74 @@ class AutenticacaoService {
 
   AutenticacaoService() {
     _api = Dio();
-    _api.interceptors.add(LogInterceptor(responseBody: false));
     _api.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       return handler.next(options);
     }));
   }
 
-  Future<Result<Exception, Response>> validarUsuario(
+  Future<Result<String, Response>> validarUsuario(
       AutenticacaoModel login) async {
+    late Response response;
     try {
-      late Response response;
       response = await _api.post('$kAPI_URI_Base/usuarios/vlogin',
-          data:
-              '{"username": "${login.usuario}","password": "${login.senha}"}');
-      return Success(jsonDecode(response.data));
+          data: {'username': '${login.usuario}', 'password': '${login.senha}'});
+      var retorno = response.data['data']['token'];
+      retorno ??= '';
+      return Success(response);
     } on DioError catch (erro) {
-      return Error(Exception(erro.response?.data));
+      var retorno = erro.response?.data['data']['message'];
+      retorno ??= erro.response.toString();
+      return Error((retorno));
     }
   }
 
-  Future<Result<Exception, String>> validarToken(String token) async {
+  Future<Result<String, Response>> validarToken(String token) async {
+    late Response response;
     try {
-      late Response response;
+      _api.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
+        options.headers['Authorization'] = token;
+        return handler.next(options);
+      }));
       response = await _api.post('$kAPI_URI_Base/usuarios/vtoken');
-      return Success(jsonDecode(response.data));
+      var retorno = response.data['message'];
+      retorno ??= '';
+      return Success(response);
     } on DioError catch (erro) {
-      return Error(Exception(erro.response?.statusMessage));
+      var retorno = erro.response?.data['data']['message'];
+      retorno ??= erro.response.toString();
+      return Error((retorno));
     }
+  }
+
+  Future<bool> desconectarUsuario(context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(kAPI_Chave_Usuario);
+    await prefs.remove(kAPI_Chave_Token);
+    exit(0);
+  }
+
+  Future<String> lerUsuarioMemLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(kAPI_Chave_Usuario) ?? '';
+  }
+
+  Future<String> lerTokenMemLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(kAPI_Chave_Token) ?? '';
+  }
+
+  Future<bool> salvarUsuarioMemLocal(String cUsuario, String cToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (await prefs.setString(kAPI_Chave_Usuario, cUsuario)) return true;
+    if (await prefs.setString(kAPI_Chave_Token, cToken)) return true;
+    return false;
+  }
+
+  Future<bool> removerUsuarioMemLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    if (await prefs.remove(kAPI_Chave_Usuario)) return true;
+    if (await prefs.remove(kAPI_Chave_Token)) return true;
+    return false;
   }
 }
