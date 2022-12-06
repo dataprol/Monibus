@@ -4,6 +4,8 @@ import 'package:sqflite/sqflite.dart';
 import '../../model/passageiroModel.dart';
 import 'package:monibus/constantes.dart';
 
+import '../../service/pessoasService.dart';
+
 class PassageiroEntidade {
   static final PassageiroEntidade _instance = PassageiroEntidade.internal();
 
@@ -11,10 +13,25 @@ class PassageiroEntidade {
 
   PassageiroEntidade.internal();
 
-  Future<Passageiro> save(Passageiro passageiro) async {
+  Future<List<Passageiro>> getAll() async {
+/*     var api = PessoasService();
+    var resultado = await api.listarPessoas();
+    if (resultado.isError()) {
+      print('ERRO: ' + resultado.getError().toString());
+    } else {
+      print('SUCESSO: ${resultado.getSuccess()}');
+    }
+ */
     Database bancoDados = await Conexao.iniciar();
-    passageiro.id = await bancoDados.insert('passageiros', passageiro.toJson());
-    return passageiro;
+    try {
+      List listaMap =
+          await bancoDados.rawQuery("SELECT * FROM $kTabelaPassageiros");
+      List<Passageiro> passageirosLista =
+          listaMap.map((x) => Passageiro.fromJson(x)).toList();
+      return passageirosLista;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<Passageiro> getById(int id) async {
@@ -29,17 +46,10 @@ class PassageiroEntidade {
     }
   }
 
-  Future<List<Passageiro>> getAll() async {
+  Future<Passageiro> save(Passageiro passageiro) async {
     Database bancoDados = await Conexao.iniciar();
-    try {
-      List listaMap =
-          await bancoDados.rawQuery("SELECT * FROM $kTabelaPassageiros");
-      List<Passageiro> passageirosLista =
-          listaMap.map((x) => Passageiro.fromJson(x)).toList();
-      return passageirosLista;
-    } catch (e) {
-      return [];
-    }
+    passageiro.id = await bancoDados.insert('passageiros', passageiro.toJson());
+    return passageiro;
   }
 
   Future<int> update(Passageiro passageiro) async {

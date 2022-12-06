@@ -428,7 +428,8 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     }
     // Se o cadastro é de uma pesssoa, acessar endpoint pessoas
     if (pessoaComoUmUsuario == '') {
-      resultado = await PessoasService.inserirPessoa(
+      var api = PessoasService();
+      resultado = api.inserirPessoa(
           pessoa: Pessoa(
               idPessoa: 0,
               nomePessoa: _cNome.text,
