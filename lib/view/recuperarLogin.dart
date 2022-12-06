@@ -63,8 +63,12 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
   Widget _buildSignupBtn() {
     return GestureDetector(
       onTap: () => {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => CadastrarPessoa())),
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => CadastrarPessoa(
+                      pessoaComoUmUsuario: 'usuário',
+                    ))),
         Navigator.pop(context)
       },
       child: Text(

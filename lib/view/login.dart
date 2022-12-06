@@ -147,7 +147,11 @@ class _TelaLoginState extends State<TelaLogin> {
     return GestureDetector(
       onTap: () => {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CadastrarPessoa()))
+            context,
+            MaterialPageRoute(
+                builder: (context) => CadastrarPessoa(
+                      pessoaComoUmUsuario: 'usuário',
+                    )))
       },
       child: const Text(
         'Cadastrar-se.',

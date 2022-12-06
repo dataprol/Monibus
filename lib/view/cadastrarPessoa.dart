@@ -2,15 +2,18 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:monibus/service/pessoaService.dart';
 import 'package:multiple_result/multiple_result.dart';
 import '../constantes.dart';
 import 'package:string_validator/string_validator.dart' as validador;
 
 import '../model/PessoaModel.dart';
-import '../service/pessoaService.dart';
+import '../service/pessoasService.dart';
+import '../service/usuariosService.dart';
 
 class CadastrarPessoa extends StatefulWidget {
+  final String pessoaComoUmUsuario;
+
+  const CadastrarPessoa({super.key, required this.pessoaComoUmUsuario});
   @override
   _CadastrarPessoaState createState() => _CadastrarPessoaState();
 }
@@ -21,7 +24,8 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
       _cSenha2,
       _cNome,
       _cEmail,
-      _cTelefone;
+      _cTelefone,
+      _cIdentidade;
 
   @override
   void initState() {
@@ -32,6 +36,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     _cNome = TextEditingController();
     _cEmail = TextEditingController();
     _cTelefone = TextEditingController();
+    _cIdentidade = TextEditingController();
   }
 
   @override
@@ -42,6 +47,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     _cNome.dispose();
     _cEmail.dispose();
     _cTelefone.dispose();
+    _cIdentidade.dispose();
     super.dispose();
   }
 
@@ -111,6 +117,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
           child: TextField(
             controller: _cTelefone,
             keyboardType: TextInputType.phone,
+            maxLength: 11,
             style: TextStyle(
               fontFamily: 'OpenSans',
             ),
@@ -121,6 +128,35 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
                 color: Colors.red,
               ),
               hintText: 'Informe um telefone',
+              hintStyle: kDicaEstilo_1,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _bldIdentidade() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 60.0,
+          child: TextField(
+            controller: _cIdentidade,
+            keyboardType: TextInputType.number,
+            maxLength: 20,
+            style: TextStyle(
+              fontFamily: 'OpenSans',
+            ),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.only(top: 14.0),
+              prefixIcon: Icon(
+                Icons.perm_identity,
+                color: Colors.red,
+              ),
+              hintText: 'Informe número de sua identidade(CPF)',
               hintStyle: kDicaEstilo_1,
             ),
           ),
@@ -215,7 +251,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     );
   }
 
-  Widget _bldCadastrarBtn() {
+  Widget _bldCadastrarBtn(context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
@@ -224,8 +260,8 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
           var lValido = bldValidacao();
           if (lValido) {
             // cadastrar usuário e retornar à tela de login
-            bldFinalizaCadastro(context);
-            //Navigator.pop(context);
+            bldFinalizaCadastro(context, widget.pessoaComoUmUsuario);
+            //.then((value) => Navigator.pop(context));
           }
         },
         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -287,12 +323,13 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
                       _bldNome(),
                       _bldEmail(),
                       _bldTelefone(),
+                      _bldIdentidade(),
                       _bldUsuario(),
                       _bldSenha(),
                       SizedBox(
                         height: 30.0,
                       ),
-                      _bldCadastrarBtn(),
+                      _bldCadastrarBtn(context),
                     ],
                   ),
                 ),
@@ -333,6 +370,15 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
+    } else if (_cIdentidade.text.isEmpty ||
+        _cIdentidade.text.length < 11 ||
+        !validador.isNumeric(_cIdentidade.text)) {
+      Flushbar(
+        title: 'Identidade inválida!',
+        message: 'Informe, corretamente, a identidade!',
+        duration: const Duration(seconds: 5),
+      ).show(context);
+      lValido = false;
     } else if (_cUsuario.text.isEmpty ||
         _cUsuario.text.length < 4 ||
         validador.isNumeric(_cUsuario.text)) {
@@ -366,15 +412,33 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     return lValido;
   }
 
-  Future<Result> bldFinalizaCadastro(context) async {
-    final resultado = await PessoasService.inserirPessoa(
-        pessoa: Pessoa(
-            idPessoa: 0,
-            nomePessoa: _cNome.text,
-            emailPessoa: _cEmail.text,
-            telefone1Pessoa: _cTelefone.text,
-            usuarioPessoa: _cUsuario.text,
-            senhaPessoa: _cSenha.text));
+  Future<Result> bldFinalizaCadastro(context, pessoaComoUmUsuario) async {
+    var resultado;
+    // Se o cadastro é de um usuário, acessar endpoint usuarios
+    if (pessoaComoUmUsuario == 'usuário') {
+      resultado = await UsuariosService.inserirUsuario(
+          pessoa: Pessoa(
+              idPessoa: 0,
+              nomePessoa: _cNome.text,
+              emailPessoa: _cEmail.text,
+              telefone1Pessoa: _cTelefone.text,
+              identidadePessoa: _cIdentidade.text,
+              usuarioPessoa: _cUsuario.text,
+              senhaPessoa: _cSenha.text));
+    }
+    // Se o cadastro é de uma pesssoa, acessar endpoint pessoas
+    if (pessoaComoUmUsuario == '') {
+      resultado = await PessoasService.inserirPessoa(
+          pessoa: Pessoa(
+              idPessoa: 0,
+              nomePessoa: _cNome.text,
+              emailPessoa: _cEmail.text,
+              telefone1Pessoa: _cTelefone.text,
+              identidadePessoa: _cIdentidade.text,
+              usuarioPessoa: _cUsuario.text,
+              senhaPessoa: _cSenha.text));
+    }
+
     if (resultado.isError()) {
       Flushbar(
         title: 'Falha na inserção!',
