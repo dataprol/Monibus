@@ -6,7 +6,7 @@ import 'package:multiple_result/multiple_result.dart';
 import '../constantes.dart';
 import 'package:string_validator/string_validator.dart' as validador;
 
-import '../model/PessoaModel.dart';
+import '../model/PessoasModel.dart';
 import '../service/pessoasService.dart';
 import '../service/usuariosService.dart';
 
@@ -19,13 +19,7 @@ class CadastrarPessoa extends StatefulWidget {
 }
 
 class _CadastrarPessoaState extends State<CadastrarPessoa> {
-  late final TextEditingController _cUsuario,
-      _cSenha,
-      _cSenha2,
-      _cNome,
-      _cEmail,
-      _cTelefone,
-      _cIdentidade;
+  late final TextEditingController _cUsuario, _cSenha, _cSenha2, _cNome, _cEmail, _cTelefone, _cIdentidade;
 
   @override
   void initState() {
@@ -343,49 +337,38 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
 
   bool bldValidacao() {
     var lValido = true;
-    if (_cNome.text.isEmpty ||
-        _cNome.text.length < 8 ||
-        validador.isNumeric(_cNome.text)) {
+    if (_cNome.text.isEmpty || _cNome.text.length < 8 || validador.isNumeric(_cNome.text)) {
       Flushbar(
         title: 'Nome inválido!',
-        message:
-            'O nome precisa possuir letras e ter o mínimo de 8 caracteres!',
+        message: 'O nome precisa possuir letras e ter o mínimo de 8 caracteres!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
     } else if (_cEmail.text.isEmpty || !validador.isEmail(_cEmail.text)) {
       Flushbar(
         title: 'E-mail inválido!',
-        message:
-            'Informe, corretamente, um endereço de correio eletrônico(e-mail)!',
+        message: 'Informe, corretamente, um endereço de correio eletrônico(e-mail)!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
-    } else if (_cTelefone.text.isEmpty ||
-        _cTelefone.text.length < 10 ||
-        !validador.isNumeric(_cTelefone.text)) {
+    } else if (_cTelefone.text.isEmpty || _cTelefone.text.length < 10 || !validador.isNumeric(_cTelefone.text)) {
       Flushbar(
         title: 'Telefone inválido!',
         message: 'Informe, corretamente, um telefone!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
-    } else if (_cIdentidade.text.isEmpty ||
-        _cIdentidade.text.length < 11 ||
-        !validador.isNumeric(_cIdentidade.text)) {
+    } else if (_cIdentidade.text.isEmpty || _cIdentidade.text.length < 11 || !validador.isNumeric(_cIdentidade.text)) {
       Flushbar(
         title: 'Identidade inválida!',
         message: 'Informe, corretamente, a identidade!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
-    } else if (_cUsuario.text.isEmpty ||
-        _cUsuario.text.length < 4 ||
-        validador.isNumeric(_cUsuario.text)) {
+    } else if (_cUsuario.text.isEmpty || _cUsuario.text.length < 4 || validador.isNumeric(_cUsuario.text)) {
       Flushbar(
         title: 'Usuário inválido!',
-        message:
-            'Informe, corretamente, um nome de usuário de acesso ao sistema!',
+        message: 'Informe, corretamente, um nome de usuário de acesso ao sistema!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
@@ -396,8 +379,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
         validador.isAlphanumeric(_cSenha.text)) {
       Flushbar(
         title: 'Senha não permitida!',
-        message:
-            'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter diferente de letra e número!',
+        message: 'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter diferente de letra e número!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
@@ -417,7 +399,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     // Se o cadastro é de um usuário, acessar endpoint usuarios
     if (pessoaComoUmUsuario == 'usuário') {
       resultado = await UsuariosService.inserirUsuario(
-          pessoa: Pessoa(
+          pessoa: Pessoas(
               idPessoa: 0,
               nomePessoa: _cNome.text,
               emailPessoa: _cEmail.text,
@@ -430,7 +412,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     if (pessoaComoUmUsuario == '') {
       var api = PessoasService();
       resultado = api.inserirPessoa(
-          pessoa: Pessoa(
+          pessoa: Pessoas(
               idPessoa: 0,
               nomePessoa: _cNome.text,
               emailPessoa: _cEmail.text,

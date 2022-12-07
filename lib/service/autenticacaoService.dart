@@ -1,15 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:monibus/constantes.dart';
-import 'package:monibus/view/login.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/autenticacaoModel.dart';
-import '../view/listaPassageiros.dart';
 
 class AutenticacaoService {
   late Dio _api;
@@ -22,12 +18,10 @@ class AutenticacaoService {
     }));
   }
 
-  Future<Result<String, Response>> validarUsuario(
-      AutenticacaoModel login) async {
+  Future<Result<String, Response>> validarUsuario(AutenticacaoModel login) async {
     late Response response;
     try {
-      response = await _api.post('$kAPI_URI_Base/usuarios/vlogin',
-          data: {'username': '${login.usuario}', 'password': '${login.senha}'});
+      response = await _api.post('$kAPI_URI_Base/usuarios/vlogin', data: {'username': '${login.usuario}', 'password': '${login.senha}'});
       var retorno = response.data['data']['token'];
       retorno ??= '';
       return Success(response);

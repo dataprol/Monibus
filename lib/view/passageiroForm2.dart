@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../model/passageiroModel.dart';
+import '../model/pessoasModel2.dart';
 
-class PassageiroForm extends StatefulWidget {
-  final Passageiro? passageiro;
-  const PassageiroForm({super.key, this.passageiro});
+class PassageiroForm2 extends StatefulWidget {
+  final PessoaModel2? passageiro;
+  const PassageiroForm2({super.key, this.passageiro});
 
   @override
-  State<PassageiroForm> createState() => _PassageiroFormState();
+  State<PassageiroForm2> createState() => _PassageiroFormState();
 }
 
-class _PassageiroFormState extends State<PassageiroForm> {
+class _PassageiroFormState extends State<PassageiroForm2> {
   final GlobalKey<FormState> _key = GlobalKey();
-  final _id = TextEditingController();
-  final _nome = TextEditingController();
-  final _email = TextEditingController();
-  final _telefone = TextEditingController();
-  final _enderecoLogradouro = TextEditingController();
-  final _enderecoNumero = TextEditingController();
-  final _enderecoBairro = TextEditingController();
-  final _enderecoMunicipio = TextEditingController();
-  final _enderecoUF = TextEditingController();
-  final _enderecoCEP = TextEditingController();
+  final _idPessoa = TextEditingController();
+  final _nomePessoa = TextEditingController();
+  final _emailPessoa = TextEditingController();
+  final _telefone1Pessoa = TextEditingController();
+  final _enderecoLogradouroPessoa = TextEditingController();
+  final _enderecoNumeroPessoa = TextEditingController();
+  final _enderecoBairroPessoa = TextEditingController();
+  final _enderecoMunicipioPessoa = TextEditingController();
+  final _enderecoUFPessoa = TextEditingController();
+  final _enderecoCEPPessoa = TextEditingController();
 
-  Passageiro _atualPassageiro = Passageiro();
+  PessoaModel2 _atualPassageiro = PessoaModel2();
 
   @override
   void initState() {
@@ -33,41 +33,39 @@ class _PassageiroFormState extends State<PassageiroForm> {
     // Verifica se foi enviado algum passageiro para edição
     // Caso queira editar, copia-se o passageiro
     if (widget.passageiro != null) {
-      _atualPassageiro = Passageiro.fromJson(widget.passageiro!.toJson());
-      _id.text = _atualPassageiro.id.toString();
-      _nome.text = _atualPassageiro.nome!;
-      _email.text = _atualPassageiro.email!;
-      _telefone.text = _atualPassageiro.telefone!;
-      _enderecoLogradouro.text = _atualPassageiro.enderecoLogradouro!;
-      _enderecoNumero.text = _atualPassageiro.enderecoNumero!;
-      _enderecoBairro.text = _atualPassageiro.enderecoBairro!;
-      _enderecoMunicipio.text = _atualPassageiro.enderecoMunicipio!;
-      _enderecoUF.text = _atualPassageiro.enderecoUF!;
-      _enderecoCEP.text = _atualPassageiro.enderecoCEP!;
+      _atualPassageiro = PessoaModel2.fromJson(widget.passageiro!.toJson());
+      _idPessoa.text = _atualPassageiro.idPessoa.toString();
+      _nomePessoa.text = _atualPassageiro.nomePessoa!;
+      _emailPessoa.text = _atualPassageiro.emailPessoa!;
+      _telefone1Pessoa.text = _atualPassageiro.telefone1Pessoa!;
+      _enderecoLogradouroPessoa.text = _atualPassageiro.enderecoLogradouroPessoa!;
+      _enderecoNumeroPessoa.text = _atualPassageiro.enderecoNumeroPessoa!;
+      _enderecoBairroPessoa.text = _atualPassageiro.enderecoBairroPessoa!;
+      _enderecoMunicipioPessoa.text = _atualPassageiro.enderecoMunicipioPessoa!;
+      _enderecoUFPessoa.text = _atualPassageiro.enderecoUFPessoa!;
+      _enderecoCEPPessoa.text = _atualPassageiro.enderecoCEPPessoa!;
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _id.clear();
-    _nome.clear();
-    _email.clear();
-    _telefone.clear();
-    _enderecoLogradouro.clear();
-    _enderecoNumero.clear();
-    _enderecoBairro.clear();
-    _enderecoMunicipio.clear();
-    _enderecoUF.clear();
-    _enderecoCEP.clear();
+    _idPessoa.clear();
+    _nomePessoa.clear();
+    _emailPessoa.clear();
+    _telefone1Pessoa.clear();
+    _enderecoLogradouroPessoa.clear();
+    _enderecoNumeroPessoa.clear();
+    _enderecoBairroPessoa.clear();
+    _enderecoMunicipioPessoa.clear();
+    _enderecoUFPessoa.clear();
+    _enderecoCEPPessoa.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: Text(
-                '${widget.passageiro != null ? 'Editar' : 'Adicionar'} um Passageiro')),
+        appBar: AppBar(title: Text('${widget.passageiro != null ? 'Editar' : 'Adicionar'} um Passageiro')),
         body: Material(
             child: SingleChildScrollView(
           child: Center(
@@ -96,67 +94,61 @@ class _PassageiroFormState extends State<PassageiroForm> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        if (_id.text.isNotEmpty)
+        if (_idPessoa.text.isNotEmpty)
           TextFormField(
-            controller: _id,
+            controller: _idPessoa,
             decoration: InputDecoration(labelText: 'Código'),
             enabled: false,
           ),
         TextFormField(
-          controller: _nome,
-          decoration: InputDecoration(
-              hintText: 'Informe nome completo', labelText: 'Nome'),
+          controller: _nomePessoa,
+          decoration: InputDecoration(hintText: 'Informe nome completo', labelText: 'Nome'),
           maxLength: 45,
           validator: _validarNome,
         ),
         TextFormField(
-          controller: _telefone,
-          decoration: InputDecoration(
-              hintText: 'Informe seu telefone celular',
-              labelText: 'Telefone celular'),
+          controller: _telefone1Pessoa,
+          decoration: InputDecoration(hintText: 'Informe seu telefone celular', labelText: 'Telefone celular'),
           keyboardType: TextInputType.phone,
           maxLength: 11,
           validator: _validarTelefone,
         ),
         TextFormField(
-          controller: _email,
+          controller: _emailPessoa,
           decoration: InputDecoration(labelText: 'E-mail'),
           keyboardType: TextInputType.emailAddress,
           maxLength: 45,
           validator: _validarEmail,
         ),
         TextFormField(
-          controller: _enderecoCEP,
+          controller: _enderecoCEPPessoa,
           decoration: InputDecoration(labelText: 'CEP'),
           keyboardType: TextInputType.number,
           maxLength: 8,
         ),
         TextFormField(
-          controller: _enderecoLogradouro,
+          controller: _enderecoLogradouroPessoa,
           decoration: InputDecoration(labelText: 'Endereço'),
           maxLength: 45,
         ),
         TextFormField(
-          controller: _enderecoNumero,
-          decoration: InputDecoration(
-              hintText: 'Informe o número do endereço', labelText: 'Número'),
+          controller: _enderecoNumeroPessoa,
+          decoration: InputDecoration(hintText: 'Informe o número do endereço', labelText: 'Número'),
           keyboardType: TextInputType.number,
           maxLength: 10,
         ),
         TextFormField(
-          controller: _enderecoBairro,
+          controller: _enderecoBairroPessoa,
           decoration: InputDecoration(labelText: 'Bairro'),
           maxLength: 45,
         ),
         TextFormField(
-          controller: _enderecoMunicipio,
-          decoration: InputDecoration(
-              hintText: 'Informe o nome do seu município/cidade',
-              labelText: 'Município'),
+          controller: _enderecoMunicipioPessoa,
+          decoration: InputDecoration(hintText: 'Informe o nome do seu município/cidade', labelText: 'Município'),
           maxLength: 45,
         ),
         TextFormField(
-          controller: _enderecoUF,
+          controller: _enderecoUFPessoa,
           decoration: InputDecoration(labelText: 'Estado'),
           maxLength: 2,
         ),
@@ -210,15 +202,15 @@ class _PassageiroFormState extends State<PassageiroForm> {
     if (_key.currentState!.validate()) {
       // Sem erros na validação
       _key.currentState!.save();
-      _atualPassageiro.nome = _nome.text;
-      _atualPassageiro.telefone = _telefone.text;
-      _atualPassageiro.email = _email.text;
-      _atualPassageiro.enderecoCEP = _enderecoCEP.text;
-      _atualPassageiro.enderecoLogradouro = _enderecoLogradouro.text;
-      _atualPassageiro.enderecoNumero = _enderecoNumero.text;
-      _atualPassageiro.enderecoBairro = _enderecoBairro.text;
-      _atualPassageiro.enderecoMunicipio = _enderecoMunicipio.text;
-      _atualPassageiro.enderecoUF = _enderecoUF.text;
+      _atualPassageiro.nomePessoa = _nomePessoa.text;
+      _atualPassageiro.telefone1Pessoa = _telefone1Pessoa.text;
+      _atualPassageiro.emailPessoa = _emailPessoa.text;
+      _atualPassageiro.enderecoCEPPessoa = _enderecoCEPPessoa.text;
+      _atualPassageiro.enderecoLogradouroPessoa = _enderecoLogradouroPessoa.text;
+      _atualPassageiro.enderecoNumeroPessoa = _enderecoNumeroPessoa.text;
+      _atualPassageiro.enderecoBairroPessoa = _enderecoBairroPessoa.text;
+      _atualPassageiro.enderecoMunicipioPessoa = _enderecoMunicipioPessoa.text;
+      _atualPassageiro.enderecoUFPessoa = _enderecoUFPessoa.text;
       Navigator.of(context).pop(_atualPassageiro);
       return;
     }

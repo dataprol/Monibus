@@ -7,10 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:monibus/constantes.dart';
 import 'package:monibus/view/cadastrarPessoa.dart';
-import 'package:monibus/view/listaPassageiros.dart';
 import 'package:monibus/view/recuperarLogin.dart';
 import '../model/autenticacaoModel.dart';
 import '../service/autenticacaoService.dart';
+import 'listaPessoas2.dart';
 
 class TelaLogin extends StatefulWidget {
   @override
@@ -104,10 +104,7 @@ class _TelaLoginState extends State<TelaLogin> {
 
   Widget _bldForgotPasswordBtn() {
     return GestureDetector(
-      onTap: () => {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => TelaRecuperarSenha()))
-      },
+      onTap: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => TelaRecuperarSenha()))},
       child: Text(
         'Esqueceu a senha.',
         style: TextStyle(
@@ -259,8 +256,7 @@ class _TelaLoginState extends State<TelaLogin> {
     } else if (!login.validoSenha) {
       Flushbar(
         title: 'Senha inválida!',
-        message:
-            'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
+        message: 'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
@@ -286,8 +282,7 @@ class _TelaLoginState extends State<TelaLogin> {
       _cToken = resposta;
       _salvarUsuarioMemLocal();
       if (_cToken.isNotEmpty) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const ListaPassageiros()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ListaPessoas2()));
       }
     }
   }

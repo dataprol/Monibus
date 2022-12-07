@@ -33,8 +33,7 @@ const kTabelaPassageirosColunas = "id INTEGER PRIMARY KEY AUTOINCREMENT" +
     ", enderecoIBGE TEXT" +
     ", enderecoSIAFI TEXT" +
     ", enderecoGIA TEXT";
-const kTabelaPassageirosCriar =
-    "CREATE TABLE $kTabelaPassageiros($kTabelaPassageirosColunas);";
+const kTabelaPassageirosCriar = "CREATE TABLE $kTabelaPassageiros($kTabelaPassageirosColunas);";
 const kTabelaPassageirosApagar = "DROP TABLE $kTabelaPassageiros;";
 
 // Web API REST

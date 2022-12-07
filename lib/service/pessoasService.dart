@@ -1,38 +1,46 @@
 import 'package:dio/dio.dart';
-import 'package:monibus/constantes.dart';
-import 'package:monibus/model/pessoaModel.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constantes.dart';
+import '../model/pessoasModel.dart';
 
 class PessoasService {
   late Dio _api;
-  late var token;
+  late String token;
 
   PessoasService() {
     _api = Dio();
+    token = '';
     lerTokenMemLocal().then((value) => token = value);
-    print(token);
     _api.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       options.headers['Authorization'] = token;
       return handler.next(options);
     }));
   }
 
-  Future<Result<Exception, Pessoa>> listarPessoas() async {
+  Future<Result<Exception, List<Pessoas>>> listarPessoas() async {
     try {
       late Response response;
-      response = await _api.get('$kAPI_URI_Base/pessoas/');
-      return Success(Pessoa.fromMap(response.data));
+      response = await _api.get('$kAPI_URI_Base/pessoas');
+      List<Pessoas> listaPessoas;
+      if (response.data['pagination']['itemsTotal'] > 0) {
+        listaPessoas = pessoasFromJson2(response.data['data']);
+      } else {
+        listaPessoas = [];
+      }
+      print(listaPessoas);
+
+      return Success(listaPessoas);
     } on DioError catch (erro) {
-      return Error(Exception(erro.response?.statusMessage));
+      return Error(Exception(erro.response?.data));
     }
   }
 
-  Future<Result<Exception, Pessoa>> buscarPessoaId({String? idPessoa}) async {
+  Future<Result<Exception, Pessoas>> buscarPessoaId({String? idPessoa}) async {
     try {
       late Response response;
       response = await _api.get('$kAPI_URI_Base/pessoas/$idPessoa');
-      return Success(Pessoa.fromMap(response.data));
+      return Success(Pessoas.fromMap(response.data));
     } on DioError catch (erro) {
       return Error(Exception(erro.response?.statusMessage));
     }
@@ -41,8 +49,7 @@ class PessoasService {
   Future<Result<Exception, String>> inserirPessoa({required pessoa}) async {
     try {
       late Response response;
-      response =
-          await _api.post('$kAPI_URI_Base/pessoas/', data: pessoa.toJson());
+      response = await _api.post('$kAPI_URI_Base/pessoas/', data: pessoa.toJson());
       return Success(response.data);
     } on DioError catch (erro) {
       return Error(Exception(erro.response?.data!));
