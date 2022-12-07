@@ -3,19 +3,20 @@ import 'package:flutter/services.dart';
 
 import '../model/pessoasModel2.dart';
 
-class PassageiroForm2 extends StatefulWidget {
+class PassageiroForm extends StatefulWidget {
   final PessoaModel2? passageiro;
-  const PassageiroForm2({super.key, this.passageiro});
+  const PassageiroForm({super.key, this.passageiro});
 
   @override
-  State<PassageiroForm2> createState() => _PassageiroFormState();
+  State<PassageiroForm> createState() => _PassageiroFormState();
 }
 
-class _PassageiroFormState extends State<PassageiroForm2> {
+class _PassageiroFormState extends State<PassageiroForm> {
   final GlobalKey<FormState> _key = GlobalKey();
   final _idPessoa = TextEditingController();
   final _nomePessoa = TextEditingController();
   final _emailPessoa = TextEditingController();
+  final _identidadePessoa = TextEditingController();
   final _telefone1Pessoa = TextEditingController();
   final _enderecoLogradouroPessoa = TextEditingController();
   final _enderecoNumeroPessoa = TextEditingController();
@@ -23,6 +24,7 @@ class _PassageiroFormState extends State<PassageiroForm2> {
   final _enderecoMunicipioPessoa = TextEditingController();
   final _enderecoUFPessoa = TextEditingController();
   final _enderecoCEPPessoa = TextEditingController();
+  String _presencaPessoa = '0';
 
   PessoaModel2 _atualPassageiro = PessoaModel2();
 
@@ -35,15 +37,17 @@ class _PassageiroFormState extends State<PassageiroForm2> {
     if (widget.passageiro != null) {
       _atualPassageiro = PessoaModel2.fromJson(widget.passageiro!.toJson());
       _idPessoa.text = _atualPassageiro.idPessoa.toString();
-      _nomePessoa.text = _atualPassageiro.nomePessoa!;
-      _emailPessoa.text = _atualPassageiro.emailPessoa!;
-      _telefone1Pessoa.text = _atualPassageiro.telefone1Pessoa!;
-      _enderecoLogradouroPessoa.text = _atualPassageiro.enderecoLogradouroPessoa!;
-      _enderecoNumeroPessoa.text = _atualPassageiro.enderecoNumeroPessoa!;
-      _enderecoBairroPessoa.text = _atualPassageiro.enderecoBairroPessoa!;
-      _enderecoMunicipioPessoa.text = _atualPassageiro.enderecoMunicipioPessoa!;
-      _enderecoUFPessoa.text = _atualPassageiro.enderecoUFPessoa!;
-      _enderecoCEPPessoa.text = _atualPassageiro.enderecoCEPPessoa!;
+      _nomePessoa.text = _atualPassageiro.nomePessoa ?? '';
+      _emailPessoa.text = _atualPassageiro.emailPessoa ?? '';
+      _telefone1Pessoa.text = _atualPassageiro.telefone1Pessoa ?? '';
+      _identidadePessoa.text = _atualPassageiro.identidadePessoa ?? '';
+      _enderecoLogradouroPessoa.text = _atualPassageiro.enderecoLogradouroPessoa ?? '';
+      _enderecoNumeroPessoa.text = _atualPassageiro.enderecoNumeroPessoa ?? '';
+      _enderecoBairroPessoa.text = _atualPassageiro.enderecoBairroPessoa ?? '';
+      _enderecoMunicipioPessoa.text = _atualPassageiro.enderecoMunicipioPessoa ?? '';
+      _enderecoUFPessoa.text = _atualPassageiro.enderecoUFPessoa ?? '';
+      _enderecoCEPPessoa.text = _atualPassageiro.enderecoCEPPessoa ?? '';
+      _presencaPessoa = _atualPassageiro.presencaPessoa ?? '0';
     }
   }
 
@@ -54,6 +58,7 @@ class _PassageiroFormState extends State<PassageiroForm2> {
     _nomePessoa.clear();
     _emailPessoa.clear();
     _telefone1Pessoa.clear();
+    _identidadePessoa.clear();
     _enderecoLogradouroPessoa.clear();
     _enderecoNumeroPessoa.clear();
     _enderecoBairroPessoa.clear();
@@ -65,28 +70,41 @@ class _PassageiroFormState extends State<PassageiroForm2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('${widget.passageiro != null ? 'Editar' : 'Adicionar'} um Passageiro')),
-        body: Material(
-            child: SingleChildScrollView(
-          child: Center(
-            heightFactor: 1,
-            child: Shortcuts(
-              shortcuts: const <ShortcutActivator, Intent>{
-                SingleActivator(LogicalKeyboardKey.enter): NextFocusIntent(),
-              },
-              child: FocusTraversalGroup(
-                child: Form(
-                  key: _key,
-                  autovalidateMode: AutovalidateMode.always,
-                  onChanged: () {
-                    Form.of(primaryFocus!.context!)!.save();
-                  },
-                  child: _formUI(),
+      appBar: AppBar(title: Text('${widget.passageiro != null ? 'Editar' : 'Adicionar'} um Passageiro')),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Stack(
+            children: <Widget>[
+              Material(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(25),
+                  child: Center(
+                    heightFactor: 1,
+                    child: Shortcuts(
+                      shortcuts: const <ShortcutActivator, Intent>{
+                        SingleActivator(LogicalKeyboardKey.enter): NextFocusIntent(),
+                      },
+                      child: FocusTraversalGroup(
+                        child: Form(
+                          key: _key,
+                          autovalidateMode: AutovalidateMode.always,
+                          onChanged: () {
+                            Form.of(primaryFocus!.context!)!.save();
+                          },
+                          child: _formUI(),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        )));
+        ),
+      ),
+    );
   }
 
   Widget _formUI() {
@@ -97,90 +115,98 @@ class _PassageiroFormState extends State<PassageiroForm2> {
         if (_idPessoa.text.isNotEmpty)
           TextFormField(
             controller: _idPessoa,
-            decoration: InputDecoration(labelText: 'Código'),
+            decoration: const InputDecoration(labelText: 'Código'),
             enabled: false,
           ),
         TextFormField(
           controller: _nomePessoa,
-          decoration: InputDecoration(hintText: 'Informe nome completo', labelText: 'Nome'),
+          decoration: const InputDecoration(hintText: 'Informe nome completo', labelText: 'Nome'),
           maxLength: 45,
-          validator: _validarNome,
+        ),
+        TextFormField(
+          controller: _identidadePessoa,
+          decoration: const InputDecoration(hintText: 'Informe sua identidade', labelText: 'Identidade'),
+          keyboardType: TextInputType.number,
+          maxLength: 20,
+          validator: _validarIdentidade,
         ),
         TextFormField(
           controller: _telefone1Pessoa,
-          decoration: InputDecoration(hintText: 'Informe seu telefone celular', labelText: 'Telefone celular'),
+          decoration: const InputDecoration(hintText: 'Informe seu telefone celular', labelText: 'Telefone celular'),
           keyboardType: TextInputType.phone,
           maxLength: 11,
           validator: _validarTelefone,
         ),
         TextFormField(
           controller: _emailPessoa,
-          decoration: InputDecoration(labelText: 'E-mail'),
+          decoration: const InputDecoration(labelText: 'E-mail'),
           keyboardType: TextInputType.emailAddress,
           maxLength: 45,
           validator: _validarEmail,
         ),
         TextFormField(
           controller: _enderecoCEPPessoa,
-          decoration: InputDecoration(labelText: 'CEP'),
+          decoration: const InputDecoration(labelText: 'CEP'),
           keyboardType: TextInputType.number,
           maxLength: 8,
         ),
         TextFormField(
           controller: _enderecoLogradouroPessoa,
-          decoration: InputDecoration(labelText: 'Endereço'),
+          decoration: const InputDecoration(labelText: 'Endereço'),
           maxLength: 45,
         ),
         TextFormField(
           controller: _enderecoNumeroPessoa,
-          decoration: InputDecoration(hintText: 'Informe o número do endereço', labelText: 'Número'),
+          decoration: const InputDecoration(hintText: 'Informe o número do endereço', labelText: 'Número'),
           keyboardType: TextInputType.number,
           maxLength: 10,
         ),
         TextFormField(
           controller: _enderecoBairroPessoa,
-          decoration: InputDecoration(labelText: 'Bairro'),
+          decoration: const InputDecoration(labelText: 'Bairro'),
           maxLength: 45,
         ),
         TextFormField(
           controller: _enderecoMunicipioPessoa,
-          decoration: InputDecoration(hintText: 'Informe o nome do seu município/cidade', labelText: 'Município'),
+          decoration: const InputDecoration(hintText: 'Informe o nome do seu município/cidade', labelText: 'Município'),
           maxLength: 45,
         ),
         TextFormField(
           controller: _enderecoUFPessoa,
-          decoration: InputDecoration(labelText: 'Estado'),
+          decoration: const InputDecoration(labelText: 'Estado'),
           maxLength: 2,
         ),
-        SizedBox(height: 15.0),
+        const SizedBox(height: 15.0),
         ElevatedButton(
           onPressed: _sendForm,
-          child: Text('Salvar'),
+          child: const Text('Salvar'),
         )
       ],
     );
   }
 
-  String? _validarNome(String? value) {
-    String patttern = r'(^[a-zA-Z ]*$)';
+  String? _validarTelefone(String? value) {
+    String patttern = r'(^[0-9]*$)';
     RegExp regExp = RegExp(patttern);
-    if (value?.length == 0) {
-      return "Informe o nome";
+    if (value!.isEmpty) {
+      return "Informe o telefone celular";
+    } else if (value.length != 11) {
+      return "O telefone deve ter 11 dígitos";
     } else if (!regExp.hasMatch(value!)) {
-      return "O nome deve conter caracteres de a-z ou A-Z";
+      return "O número do telefone só deve conter dígitos";
     }
     return null;
   }
 
-  String? _validarTelefone(String? value) {
+  String? _validarIdentidade(String? value) {
     String patttern = r'(^[0-9]*$)';
     RegExp regExp = RegExp(patttern);
-    if (value?.length == 0) {
-      return "Informe o telefone celular";
-    } else if (value?.length != 11) {
-      return "O telefone deve ter 11 dígitos";
-    } else if (!regExp.hasMatch(value!)) {
-      return "O número do telefone só deve conter dígitos";
+    if (value!.isEmpty) {
+      return "Informe sua identidade(CPF)";
+    } else if (value.length < 11 && value.length > 20) {
+      return "A identidade deve ter de 11 à 20 dígitos";
+    } else if (!regExp.hasMatch(value)) {
+      return "A identidade só deve conter dígitos numéricos";
     }
     return null;
   }
@@ -189,9 +215,9 @@ class _PassageiroFormState extends State<PassageiroForm2> {
     String pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regExp = RegExp(pattern);
-    if (value?.length == 0) {
+    if (value!.isEmpty) {
       return "Informe o Email";
-    } else if (!regExp.hasMatch(value!)) {
+    } else if (!regExp.hasMatch(value)) {
       return "Email inválido";
     } else {
       return null;
@@ -200,9 +226,9 @@ class _PassageiroFormState extends State<PassageiroForm2> {
 
   _sendForm() {
     if (_key.currentState!.validate()) {
-      // Sem erros na validação
       _key.currentState!.save();
       _atualPassageiro.nomePessoa = _nomePessoa.text;
+      _atualPassageiro.identidadePessoa = _identidadePessoa.text;
       _atualPassageiro.telefone1Pessoa = _telefone1Pessoa.text;
       _atualPassageiro.emailPessoa = _emailPessoa.text;
       _atualPassageiro.enderecoCEPPessoa = _enderecoCEPPessoa.text;
@@ -211,6 +237,7 @@ class _PassageiroFormState extends State<PassageiroForm2> {
       _atualPassageiro.enderecoBairroPessoa = _enderecoBairroPessoa.text;
       _atualPassageiro.enderecoMunicipioPessoa = _enderecoMunicipioPessoa.text;
       _atualPassageiro.enderecoUFPessoa = _enderecoUFPessoa.text;
+      _atualPassageiro.presencaPessoa = _presencaPessoa;
       Navigator.of(context).pop(_atualPassageiro);
       return;
     }

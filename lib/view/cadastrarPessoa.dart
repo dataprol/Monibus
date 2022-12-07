@@ -45,6 +45,68 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Stack(
+            children: <Widget>[
+              Container(
+                height: double.infinity,
+                width: double.infinity,
+              ),
+              Container(
+                height: double.infinity,
+                child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 120.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        kAplicativoNome,
+                        style: TextStyle(
+                          fontFamily: 'OpenSans',
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Cadastro',
+                        style: TextStyle(
+                          fontFamily: 'OpenSans',
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 30.0),
+                      _bldNome(),
+                      _bldEmail(),
+                      _bldTelefone(),
+                      _bldIdentidade(),
+                      _bldUsuario(),
+                      _bldSenha(),
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      _bldCadastrarBtn(context),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _bldNome() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +212,7 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
                 Icons.perm_identity,
                 color: Colors.red,
               ),
-              hintText: 'Informe número de sua identidade(CPF)',
+              hintText: 'Informe sua identidade(CPF)',
               hintStyle: kDicaEstilo_1,
             ),
           ),
@@ -267,68 +329,6 @@ class _CadastrarPessoaState extends State<CadastrarPessoa> {
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'OpenSans',
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-              ),
-              Container(
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 120.0,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        kAplicativoNome,
-                        style: TextStyle(
-                          fontFamily: 'OpenSans',
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Cadastro',
-                        style: TextStyle(
-                          fontFamily: 'OpenSans',
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 30.0),
-                      _bldNome(),
-                      _bldEmail(),
-                      _bldTelefone(),
-                      _bldIdentidade(),
-                      _bldUsuario(),
-                      _bldSenha(),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _bldCadastrarBtn(context),
-                    ],
-                  ),
-                ),
-              )
-            ],
           ),
         ),
       ),

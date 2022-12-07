@@ -37,6 +37,7 @@ const kTabelaPassageirosCriar = "CREATE TABLE $kTabelaPassageiros($kTabelaPassag
 const kTabelaPassageirosApagar = "DROP TABLE $kTabelaPassageiros;";
 
 // Web API REST
+const kAPI_URL_Arquivos = 'http://monibus.tecnologia.ws/assets/files';
 const kAPI_URI_Base = 'http://monibus.tecnologia.ws/api';
 const kAPI_Chave_Usuario = 'lccrDataprol_usuarioAtual';
 const kAPI_Chave_Token = 'lccrDataprol_tokenAtual';

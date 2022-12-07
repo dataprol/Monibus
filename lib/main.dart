@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monibus/constantes.dart';
-import 'package:monibus/view/listaPessoas2.dart';
+import 'package:monibus/view/listaPessoas.dart';
 import 'package:monibus/view/login.dart';
 import 'service/autenticacaoService.dart';
 
@@ -31,7 +31,7 @@ class Principal extends StatelessWidget {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
-            return (snapshot.data ?? false) ? ListaPessoas2() : TelaLogin();
+            return (snapshot.data ?? false) ? ListaPessoas() : TelaLogin();
           }),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,56 +8,86 @@ import 'package:http/http.dart' as http;
 import '../constantes.dart';
 import '../model/pessoasModel2.dart';
 import '../service/autenticacaoService.dart';
-import '../view/passageiroForm2.dart';
+import 'passageiroForm.dart';
 
 const baseUrl = "$kAPI_URI_Base/pessoas";
 
 class API {
-  static Future getList() async {
+  static Future getListItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString(kAPI_Chave_Token)!;
-    return await http.get(Uri.parse(baseUrl), headers: {'Authorization': token});
+    var parametros = "?itensPorPagina=60";
+    var resposta = await http.get(Uri.parse(baseUrl + parametros), headers: {'Authorization': token});
+    if (kDebugMode) {
+      print('===== getListItems =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
   }
 
-  static Future updateItem(String id, String item) async {
+  static Future updateItem(PessoaModel2 item) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString(kAPI_Chave_Token)!;
-    return await http.put(Uri.parse('$baseUrl/$id'), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: item);
+    var resposta =
+        await http.put(Uri.parse('$baseUrl/${item.idPessoa}'), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: jsonEncode(item));
+    if (kDebugMode) {
+      print('===== updateItem =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
   }
 
-  static Future insertItem(String item) async {
+  static Future insertItem(PessoaModel2 item) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString(kAPI_Chave_Token)!;
-    return await http.post(Uri.parse(baseUrl), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: item);
+    var resposta = await http.post(Uri.parse(baseUrl), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: jsonEncode(item));
+    if (kDebugMode) {
+      print('===== insertItem =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
   }
 
-  static Future deleteItem(String id) async {
+  static Future deleteItem(PessoaModel2 item) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString(kAPI_Chave_Token)!;
-    return await http.delete(Uri.parse('$baseUrl/$id'), headers: {'Authorization': token});
+    var resposta = await http.delete(Uri.parse('$baseUrl/${item.idPessoa}'), headers: {'Authorization': token});
+    if (kDebugMode) {
+      print('===== deleteItem =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
   }
 }
 
-class ListaPessoas2 extends StatefulWidget {
-  const ListaPessoas2({Key? key}) : super(key: key);
+class ListaPessoas extends StatefulWidget {
+  const ListaPessoas({Key? key}) : super(key: key);
   @override
-  _ListaPessoas2State createState() => _ListaPessoas2State();
+  _ListaPessoasState createState() => _ListaPessoasState();
 }
 
-class _ListaPessoas2State extends State<ListaPessoas2> {
-  var pessoas = <PessoaModel2>[];
+class _ListaPessoasState extends State<ListaPessoas> {
+  var listaPessoas = <PessoaModel2>[];
   _getList() {
-    API.getList().then((response) {
+    API.getListItems().then((response) {
       setState(() {
-        Iterable lista = json.decode(response.body)['data'];
-        pessoas = lista.map((model) => PessoaModel2.fromJson(model)).toList();
-        _passageiroLista = pessoas;
+        Iterable lista = jsonDecode(response.body)['data'];
+        listaPessoas = lista.map((modelo) => PessoaModel2.fromJson(modelo)).toList();
+        _passageiroLista = listaPessoas;
         _loading = false;
       });
     });
   }
 
-  _ListaPessoas2State() {
+  _ListaPessoasState() {
     _getList();
   }
 
@@ -129,7 +160,14 @@ class _ListaPessoas2State extends State<ListaPessoas2> {
   Widget _buildPassageiroItem(BuildContext context, int index) {
     final passageiro = _passageiroLista[index];
     return CheckboxListTile(
-      title: Text(passageiro.nomePessoa.toString()),
+      title: Row(
+        children: [
+          /* const CircleAvatar(
+            foregroundImage: NetworkImage('$kAPI_URL_Arquivos/users/default.jpg'),
+          ), */
+          Text('  ' + passageiro.nomePessoa.toString()),
+        ],
+      ),
       value: passageiro.presencaPessoa == '1',
       subtitle: Text(passageiro.telefone1Pessoa.toString() + ' ' + passageiro.emailPessoa.toString()),
       onChanged: (taMarcado) {
@@ -140,8 +178,7 @@ class _ListaPessoas2State extends State<ListaPessoas2> {
           passageiro.presencaPessoa = (taMarcado == true ? '1' : '0');
         });
         try {
-          //_tabelaPassageiro.update(passageiro);
-          API.updateItem(passageiro.idPessoa.toString(), passageiro.toJson().toString());
+          API.updateItem(passageiro);
         } catch (e) {
           const AlertDialog(
             title: Text("Erro"),
@@ -187,13 +224,13 @@ class _ListaPessoas2State extends State<ListaPessoas2> {
   }
 
   Future _adicionaNovoPassageiro({PessoaModel2? passageiroAlterado, int? index}) async {
-    PessoaModel2? passageiro = await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm2(passageiro: passageiroAlterado)));
+    PessoaModel2? passageiro = await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: passageiroAlterado)));
     if (passageiro != null) {
       setState(() {
         if (index == null) {
           try {
             //_tabelaPassageiro.save(passageiro).then((obj) => _passageiroLista.add(obj));
-            API.insertItem(passageiro.toJson().toString());
+            API.insertItem(passageiro);
           } catch (e) {
             const AlertDialog(
               title: Text("Erro"),
@@ -204,7 +241,7 @@ class _ListaPessoas2State extends State<ListaPessoas2> {
           _passageiroLista[index] = passageiro;
           try {
             //_tabelaPassageiro.update(passageiro);
-            API.updateItem(passageiro.idPessoa.toString(), passageiro.toJson().toString());
+            API.updateItem(passageiro);
           } catch (e) {
             const AlertDialog(
               title: Text("Erro"),
@@ -223,7 +260,7 @@ class _ListaPessoas2State extends State<ListaPessoas2> {
 
     try {
       //_tabelaPassageiro.delete(removePassageiro.id!);
-      API.deleteItem(removePassageiro.idPessoa.toString());
+      API.deleteItem(removePassageiro);
     } catch (e) {
       const AlertDialog(
         title: Text("Erro"),

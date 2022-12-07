@@ -10,7 +10,7 @@ import 'package:monibus/view/cadastrarPessoa.dart';
 import 'package:monibus/view/recuperarLogin.dart';
 import '../model/autenticacaoModel.dart';
 import '../service/autenticacaoService.dart';
-import 'listaPessoas2.dart';
+import 'listaPessoas.dart';
 
 class TelaLogin extends StatefulWidget {
   @override
@@ -282,7 +282,7 @@ class _TelaLoginState extends State<TelaLogin> {
       _cToken = resposta;
       _salvarUsuarioMemLocal();
       if (_cToken.isNotEmpty) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const ListaPessoas2()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ListaPessoas()));
       }
     }
   }
