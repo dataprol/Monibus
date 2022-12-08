@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -30,8 +32,8 @@ class API {
   static Future updateItem(PessoaModel2 item) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString(kAPI_Chave_Token)!;
-    var resposta =
-        await http.put(Uri.parse('$baseUrl/${item.idPessoa}'), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: jsonEncode(item));
+    var resposta = await http.put(Uri.parse('$baseUrl/${item.idPessoa}'),
+        headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: jsonEncode(item));
     if (kDebugMode) {
       print('===== updateItem =====');
       print('Status code: ${resposta.statusCode}');
@@ -44,7 +46,8 @@ class API {
   static Future insertItem(PessoaModel2 item) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString(kAPI_Chave_Token)!;
-    var resposta = await http.post(Uri.parse(baseUrl), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: jsonEncode(item));
+    var resposta =
+        await http.post(Uri.parse(baseUrl), headers: {'Authorization': token, 'Content-Type': 'application/json'}, body: jsonEncode(item));
     if (kDebugMode) {
       print('===== insertItem =====');
       print('Status code: ${resposta.statusCode}');
@@ -137,7 +140,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: _adicionaNovoPassageiro),
+        floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: _adicionaEditaPassageiro),
         body: Padding(
           padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
           child: _buildPassageiroLista(),
@@ -196,11 +199,47 @@ class _ListaPessoasState extends State<ListaPessoas> {
         extentRatio: 0.25,
         children: [
           SlidableAction(
-            label: 'Editar',
-            backgroundColor: Colors.blue,
-            icon: Icons.edit,
-            onPressed: (context) {
-              _adicionaNovoPassageiro(passageiroAlterado: _passageiroLista[index], index: index);
+            label: 'Localizar',
+            backgroundColor: Colors.yellow,
+            icon: Icons.map,
+            onPressed: (context) async {
+              var endereco = _passageiroLista[index].enderecoLogradouroPessoa! +
+                  ',' +
+                  _passageiroLista[index].enderecoNumeroPessoa! +
+                  ',' +
+                  _passageiroLista[index].enderecoBairroPessoa! +
+                  ',' +
+                  _passageiroLista[index].enderecoMunicipioPessoa! +
+                  ',' +
+                  _passageiroLista[index].enderecoUFPessoa! +
+                  ',' +
+                  _passageiroLista[index].enderecoCEPPessoa!;
+              var url = "geo:0,0?q=$endereco";
+              try {
+                await launchUrlString(url);
+              } catch (e) {
+                if (kDebugMode) {
+                  print("Algo deu errado ao tentar iniciar mapa! Erro: $e");
+                }
+              }
+            },
+          ),
+          SlidableAction(
+            label: 'Chamar',
+            backgroundColor: Colors.green,
+            icon: Icons.phone,
+            onPressed: (context) async {
+              var mensagem = "Olá!";
+              var codigoPais = "+55";
+              var telefone = codigoPais + _passageiroLista[index].telefone1Pessoa!;
+              var url = "whatsapp://send?phone=$telefone&text=$mensagem";
+              try {
+                await launchUrlString(url);
+              } catch (e) {
+                if (kDebugMode) {
+                  print("Algo deu errado ao tentar fazer contato! Erro: $e");
+                }
+              }
             },
           ),
         ],
@@ -209,6 +248,14 @@ class _ListaPessoasState extends State<ListaPessoas> {
         motion: const DrawerMotion(),
         extentRatio: 0.25,
         children: [
+          SlidableAction(
+            label: 'Editar',
+            backgroundColor: Colors.blue,
+            icon: Icons.edit,
+            onPressed: (context) {
+              _adicionaEditaPassageiro(passageiroAlterado: _passageiroLista[index], index: index);
+            },
+          ),
           SlidableAction(
             label: 'Remover',
             backgroundColor: Colors.red,
@@ -223,8 +270,9 @@ class _ListaPessoasState extends State<ListaPessoas> {
     );
   }
 
-  Future _adicionaNovoPassageiro({PessoaModel2? passageiroAlterado, int? index}) async {
-    PessoaModel2? passageiro = await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: passageiroAlterado)));
+  Future _adicionaEditaPassageiro({PessoaModel2? passageiroAlterado, int? index}) async {
+    PessoaModel2? passageiro =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: passageiroAlterado)));
     if (passageiro != null) {
       setState(() {
         if (index == null) {
@@ -279,8 +327,8 @@ class _ListaPessoasState extends State<ListaPessoas> {
               //_tabelaPassageiro.update(removePassageiro);
             } catch (e) {
               AlertDialog(
-                title: Text("Erro"),
-                content: Text("Falha ao tentar restaurar passageiro!"),
+                title: Text("Erro na Restauração"),
+                content: Text("Falha ao tentar restaurar o passageiro!"),
                 actions: [
                   TextButton(
                     onPressed: () => voltarTelaAnterior,

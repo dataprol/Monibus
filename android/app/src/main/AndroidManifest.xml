@@ -4,6 +4,10 @@
         android:label="monibus"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="AIzaSyAbvvg9zRGXpuAGFXTfz6caE3Bc_kTJXnU"/>        
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,5 +34,27 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+            <!-- Provide required visibility configuration for API level 30 and above -->
     </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sms" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="whatsapp" />
+        </intent>
+    </queries>
+
 </manifest>

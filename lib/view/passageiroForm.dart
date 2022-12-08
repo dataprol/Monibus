@@ -192,7 +192,7 @@ class _PassageiroFormState extends State<PassageiroForm> {
       return "Informe o telefone celular";
     } else if (value.length != 11) {
       return "O telefone deve ter 11 dígitos";
-    } else if (!regExp.hasMatch(value!)) {
+    } else if (!regExp.hasMatch(value)) {
       return "O número do telefone só deve conter dígitos";
     }
     return null;

@@ -28,10 +28,14 @@ class Principal extends StatelessWidget {
       home: FutureBuilder(
           future: checkHome(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
+            try {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return (snapshot.data ?? false) ? const ListaPessoas() : TelaLogin();
+            } catch (e) {
+              return const AlertDialog(title: Text("Erro Interno"), content: Text("O aplicativo teve um problema imprevisto! "));
             }
-            return (snapshot.data ?? false) ? ListaPessoas() : TelaLogin();
           }),
     );
   }
