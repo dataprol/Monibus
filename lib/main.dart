@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:monibus/constantes.dart';
-import 'package:monibus/view/listaPessoas.dart';
+import 'package:monibus/view/lista_pessoas.dart';
 import 'package:monibus/view/login.dart';
-import 'service/autenticacaoService.dart';
+import 'service/autenticacao_service.dart';
 
 void main() {
   runApp(const Principal());

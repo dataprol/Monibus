@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../model/pessoasModel2.dart';
+import '../model/pessoas_model2.dart';
 
 class PassageiroForm extends StatefulWidget {
   final PessoaModel2? passageiro;

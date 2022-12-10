@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constantes.dart';
-import '../model/pessoasModel.dart';
+import '../model/pessoas_model.dart';
 
 class PessoasService {
   late Dio _api;
@@ -28,7 +29,9 @@ class PessoasService {
       } else {
         listaPessoas = [];
       }
-      print(listaPessoas);
+      if (kDebugMode) {
+        print(listaPessoas);
+      }
 
       return Success(listaPessoas);
     } on DioError catch (erro) {

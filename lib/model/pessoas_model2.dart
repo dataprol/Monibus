@@ -1,3 +1,5 @@
+import 'package:monibus/model/empresas_model.dart';
+
 class PessoaModel2 {
   late String? idPessoa;
   late String? nomePessoa;
@@ -18,6 +20,7 @@ class PessoaModel2 {
   late String? enderecoSIAFIPessoa;
   late String? enderecoGIAPessoa;
   late String? presencaPessoa;
+  late Empresas? empresa;
 
   PessoaModel2({
     this.idPessoa,
@@ -39,6 +42,7 @@ class PessoaModel2 {
     this.enderecoSIAFIPessoa,
     this.enderecoGIAPessoa,
     this.presencaPessoa,
+    this.empresa,
   });
 
   PessoaModel2.fromJson(Map json)
@@ -60,7 +64,8 @@ class PessoaModel2 {
         enderecoIBGEPessoa = json['enderecoIBGEPessoa'],
         enderecoSIAFIPessoa = json['enderecoSIAFIPessoa'],
         enderecoGIAPessoa = json['enderecoGIAPessoa'],
-        presencaPessoa = json['presencaPessoa'];
+        presencaPessoa = json['presencaPessoa'],
+        empresa = json['empresa'];
 
   Map<String, dynamic> toJson() => {
         "idPessoa": idPessoa,
@@ -81,6 +86,6 @@ class PessoaModel2 {
         "enderecoIBGEPessoa": enderecoIBGEPessoa,
         "enderecoSIAFIPessoa": enderecoSIAFIPessoa,
         "enderecoGIAPessoa": enderecoGIAPessoa,
-        "presencaPessoa": presencaPessoa,
+        "empresa": empresa,
       };
 }

@@ -5,7 +5,7 @@ import 'package:monibus/constantes.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/autenticacaoModel.dart';
+import '../model/autenticacao_model.dart';
 
 class AutenticacaoService {
   late Dio _api;

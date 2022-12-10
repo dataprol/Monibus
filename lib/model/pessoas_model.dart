@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:monibus/model/empresas_model.dart';
+
 class Pessoas {
   late int? idPessoa;
   late String? nomePessoa;
@@ -19,6 +21,7 @@ class Pessoas {
   late String? enderecoIBGEPessoa;
   late String? enderecoSIAFIPessoa;
   late String? enderecoGIAPessoa;
+  late Empresas? empresa;
 
   Pessoas({
     this.idPessoa,
@@ -39,6 +42,7 @@ class Pessoas {
     this.enderecoIBGEPessoa,
     this.enderecoSIAFIPessoa,
     this.enderecoGIAPessoa,
+    this.empresa,
   });
 
   factory Pessoas.fromMap(Map<String, dynamic> json) => Pessoas(
@@ -60,6 +64,7 @@ class Pessoas {
         enderecoIBGEPessoa: json["enderecoIBGEPessoa"],
         enderecoSIAFIPessoa: json["enderecoSIAFIPessoa"],
         enderecoGIAPessoa: json["enderecoGIAPessoa"],
+        empresa: json["empresa"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -81,6 +86,7 @@ class Pessoas {
         "enderecoIBGEPessoa": enderecoIBGEPessoa,
         "enderecoSIAFIPessoa": enderecoSIAFIPessoa,
         "enderecoGIAPessoa": enderecoGIAPessoa,
+        "empresa": empresa,
       };
 
   Pessoas.fromJson(Map json)
@@ -101,7 +107,8 @@ class Pessoas {
         enderecoCEPPessoa = json['enderecoCEPPessoa'],
         enderecoIBGEPessoa = json['enderecoIBGEPessoa'],
         enderecoSIAFIPessoa = json['enderecoSIAFIPessoa'],
-        enderecoGIAPessoa = json['enderecoGIAPessoa'];
+        enderecoGIAPessoa = json['enderecoGIAPessoa'],
+        empresa = json['empresa'];
 
   factory Pessoas.fromJson2(Map<String, dynamic> json) => Pessoas(
         idPessoa: json["idPessoa"],
@@ -122,9 +129,8 @@ class Pessoas {
         enderecoIBGEPessoa: json["enderecoIBGEPessoa"],
         enderecoSIAFIPessoa: json["enderecoSIAFIPessoa"],
         enderecoGIAPessoa: json["enderecoGIAPessoa"],
+        empresa: json["empresa"],
       );
-
-  factory Pessoas.fromJson3(String str) => Pessoas.fromMap(json.decode(str));
 
   Map<String, dynamic> toJson() => {
         "idPessoa": idPessoa,
@@ -145,6 +151,7 @@ class Pessoas {
         "enderecoIBGEPessoa": enderecoIBGEPessoa,
         "enderecoSIAFIPessoa": enderecoSIAFIPessoa,
         "enderecoGIAPessoa": enderecoGIAPessoa,
+        "empresa": empresa,
       };
 
   String toJson2() => json.encode(toMap());

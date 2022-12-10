@@ -6,11 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:monibus/constantes.dart';
-import 'package:monibus/view/cadastrarPessoa.dart';
-import 'package:monibus/view/recuperarLogin.dart';
-import '../model/autenticacaoModel.dart';
-import '../service/autenticacaoService.dart';
-import 'listaPessoas.dart';
+import 'package:monibus/view/cadastrar_pessoa.dart';
+import 'package:monibus/view/recuperar_login.dart';
+import '../model/autenticacao_model.dart';
+import '../service/autenticacao_service.dart';
+import 'lista_pessoas.dart';
 
 class TelaLogin extends StatefulWidget {
   @override
@@ -256,7 +256,8 @@ class _TelaLoginState extends State<TelaLogin> {
     } else if (!login.validoSenha) {
       Flushbar(
         title: 'Senha inválida!',
-        message: 'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
+        message:
+            'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;

@@ -8,9 +8,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../constantes.dart';
-import '../model/pessoasModel2.dart';
-import '../service/autenticacaoService.dart';
-import 'passageiroForm.dart';
+import '../model/pessoas_model2.dart';
+import '../service/autenticacao_service.dart';
+import 'passageiro_form.dart';
 
 const baseUrl = "$kAPI_URI_Base/pessoas";
 
@@ -148,13 +148,18 @@ class _ListaPessoasState extends State<ListaPessoas> {
   }
 
   Widget _buildPassageiroLista() {
+    var endereco;
     if (_passageiroLista.isEmpty) {
       return Center(
         child: _loading ? CircularProgressIndicator() : Text("Nenhum passageiro."),
       );
     } else {
-      return ListView.builder(
+      return ListView.separated(
         itemBuilder: _buildPassageiroItemSlidable,
+        separatorBuilder: (context, index) => Divider(
+          height: 20,
+          thickness: 2,
+        ),
         itemCount: _passageiroLista.length,
       );
     }
@@ -162,37 +167,43 @@ class _ListaPessoasState extends State<ListaPessoas> {
 
   Widget _buildPassageiroItem(BuildContext context, int index) {
     final passageiro = _passageiroLista[index];
-    return CheckboxListTile(
+    var endereco =
+        '${_passageiroLista[index].enderecoBairroPessoa ?? ''} ${_passageiroLista[index].enderecoMunicipioPessoa ?? ''} ${_passageiroLista[index].enderecoUFPessoa ?? ''} ${_passageiroLista[index].enderecoCEPPessoa ?? ''}';
+    return ListTile(
+      leading: avatarPassageiro(),
       title: Row(
         children: [
-          /* const CircleAvatar(
-            foregroundImage: NetworkImage('$kAPI_URL_Arquivos/users/default.jpg'),
-          ), */
-          Text('  ' + passageiro.nomePessoa.toString()),
+          Text('  ${passageiro.nomePessoa}'),
         ],
       ),
-      value: passageiro.presencaPessoa == '1',
-      subtitle: Text(passageiro.telefone1Pessoa.toString() + ' ' + passageiro.emailPessoa.toString()),
-      onChanged: (taMarcado) {
-/*         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => FotografarPessoa()));
- */
-        setState(() {
-          passageiro.presencaPessoa = (taMarcado == true ? '1' : '0');
-        });
-        try {
-          API.updateItem(passageiro);
-        } catch (e) {
-          const AlertDialog(
-            title: Text("Erro"),
-            content: Text("Falha ao tentar atualizar passageiro!"),
-          );
-        }
-      },
+      subtitle: Text(endereco),
+      trailing: Checkbox(
+        value: passageiro.presencaPessoa == '1',
+        onChanged: (taMarcado) {
+          /* Navigator.push(context,
+            MaterialPageRoute(builder: (context) => FotografarPessoa())); */
+          setState(() {
+            passageiro.presencaPessoa = (taMarcado == true ? '1' : '0');
+          });
+          try {
+            API.updateItem(passageiro);
+          } catch (e) {
+            const AlertDialog(
+              title: Text("Erro"),
+              content: Text("Falha ao tentar atualizar passageiro!"),
+            );
+          }
+        },
+      ),
     );
   }
 
   Widget _buildPassageiroItemSlidable(BuildContext context, int index) {
+    var endereco =
+        '${_passageiroLista[index].enderecoLogradouroPessoa ?? ''}, ${_passageiroLista[index].enderecoNumeroPessoa ?? ''}, ${_passageiroLista[index].enderecoBairroPessoa ?? ''}, ${_passageiroLista[index].enderecoMunicipioPessoa ?? ''}, ${_passageiroLista[index].enderecoUFPessoa ?? ''}, ${_passageiroLista[index].enderecoCEPPessoa ?? ''}';
+    var mensagem = "Olá!";
+    var codigoPais = "+55";
+    var telefone = codigoPais + _passageiroLista[index].telefone1Pessoa!;
     return Slidable(
       startActionPane: ActionPane(
         motion: const DrawerMotion(),
@@ -203,17 +214,6 @@ class _ListaPessoasState extends State<ListaPessoas> {
             backgroundColor: Colors.yellow,
             icon: Icons.map,
             onPressed: (context) async {
-              var endereco = _passageiroLista[index].enderecoLogradouroPessoa! +
-                  ',' +
-                  _passageiroLista[index].enderecoNumeroPessoa! +
-                  ',' +
-                  _passageiroLista[index].enderecoBairroPessoa! +
-                  ',' +
-                  _passageiroLista[index].enderecoMunicipioPessoa! +
-                  ',' +
-                  _passageiroLista[index].enderecoUFPessoa! +
-                  ',' +
-                  _passageiroLista[index].enderecoCEPPessoa!;
               var url = "geo:0,0?q=$endereco";
               try {
                 await launchUrlString(url);
@@ -229,9 +229,6 @@ class _ListaPessoasState extends State<ListaPessoas> {
             backgroundColor: Colors.green,
             icon: Icons.phone,
             onPressed: (context) async {
-              var mensagem = "Olá!";
-              var codigoPais = "+55";
-              var telefone = codigoPais + _passageiroLista[index].telefone1Pessoa!;
               var url = "whatsapp://send?phone=$telefone&text=$mensagem";
               try {
                 await launchUrlString(url);
@@ -345,5 +342,31 @@ class _ListaPessoasState extends State<ListaPessoas> {
 
   void voltarTelaAnterior() {
     Navigator.pop(context);
+  }
+
+  avatarPassageiro() {
+/*     try {
+      return const CircleAvatar(
+        foregroundImage: NetworkImage('$kAPI_URL_Arquivos/users/103.jpg'),
+/*         onForegroundImageError: (_, __) {
+          print('erro');
+          return null;
+        },
+ */
+      );
+    } catch (e) {
+      try {
+        print('O carregamento da imagem 103.jpg falhou. Tentando carregar default.gif: $e');
+        return const CircleAvatar(
+          foregroundImage: NetworkImage('$kAPI_URL_Arquivos/users/default.gif'),
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          print('Erro no carregamento de imagem de avatar: $e');
+        }
+      }
+    }
+ */
+    return null;
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:monibus/view/cadastrarPessoa.dart';
+import 'package:monibus/view/cadastrar_pessoa.dart';
 import 'package:monibus/view/login.dart';
 import '../constantes.dart';
 
