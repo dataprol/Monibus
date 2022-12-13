@@ -1,7 +1,29 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../constantes.dart';
 import '../model/pessoas_model2.dart';
+
+const baseUrl = "$kAPI_URI_Base/pessoas";
+
+class API {
+  static Future consultItem(String id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString(kAPI_Chave_Token)!;
+    var resposta = await http.get(Uri.parse('$baseUrl/$id'), headers: {'Authorization': token});
+    if (kDebugMode) {
+      print('===== consultItem =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
+  }
+}
 
 class PassageiroForm extends StatefulWidget {
   final PessoaModel2? passageiro;
@@ -25,6 +47,8 @@ class _PassageiroFormState extends State<PassageiroForm> {
   final _enderecoUFPessoa = TextEditingController();
   final _enderecoCEPPessoa = TextEditingController();
   String _presencaPessoa = '0';
+
+  PessoaModel2 pessoaRecebida = PessoaModel2();
 
   PessoaModel2 _atualPassageiro = PessoaModel2();
 
@@ -69,6 +93,11 @@ class _PassageiroFormState extends State<PassageiroForm> {
 
   @override
   Widget build(BuildContext context) {
+/*     API.consultItem(idUsuario).then((response) {
+      setState(() {
+        pessoaRecebida = jsonDecode(response.body)['data'];
+      });
+    }); */
     return Scaffold(
       appBar: AppBar(title: Text('${widget.passageiro != null ? 'Editar' : 'Adicionar'} um Passageiro')),
       body: AnnotatedRegion<SystemUiOverlayStyle>(

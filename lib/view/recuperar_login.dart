@@ -1,8 +1,27 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:monibus/view/cadastrar_pessoa.dart';
-import 'package:monibus/view/login.dart';
 import '../constantes.dart';
+import '../model/pessoas_model2.dart';
+
+const baseUrl = "$kAPI_URI_Base/pessoas";
+
+class API {
+  static Future recuperarAcesso(String email) async {
+    var resposta = await http.post(Uri.parse(baseUrl), body: '{"email":"$email"}');
+    if (kDebugMode) {
+      print('===== insertItem =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
+  }
+}
 
 class TelaRecuperarSenha extends StatefulWidget {
   @override
@@ -10,6 +29,19 @@ class TelaRecuperarSenha extends StatefulWidget {
 }
 
 class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
+  late final TextEditingController _cEmail;
+  @override
+  void initState() {
+    super.initState();
+    _cEmail = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _cEmail.dispose();
+    super.dispose();
+  }
+
   Widget _buildEmailTF() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -18,6 +50,7 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
           alignment: Alignment.centerLeft,
           height: 60.0,
           child: TextField(
+            controller: _cEmail,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(
               fontFamily: 'OpenSans',
@@ -43,7 +76,7 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pop(context);
+          solicitaRecuperacaoAcesso();
         },
         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
         child: Text(
@@ -142,5 +175,14 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
         ),
       ),
     );
+  }
+
+  void solicitaRecuperacaoAcesso() {
+    API.recuperarAcesso(_cEmail.text).then((response) {
+      setState(() {
+        Iterable lista = jsonDecode(response.body)['data'];
+      });
+    });
+    Navigator.pop(context);
   }
 }

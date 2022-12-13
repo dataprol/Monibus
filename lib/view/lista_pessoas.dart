@@ -69,6 +69,19 @@ class API {
     }
     return resposta;
   }
+
+  static Future consultItem(PessoaModel2 item) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString(kAPI_Chave_Token)!;
+    var resposta = await http.get(Uri.parse('$baseUrl/${item.idPessoa}'), headers: {'Authorization': token});
+    if (kDebugMode) {
+      print('===== consultItem =====');
+      print('Status code: ${resposta.statusCode}');
+      print('Body: ${resposta.body}');
+      print('---------------------');
+    }
+    return resposta;
+  }
 }
 
 class ListaPessoas extends StatefulWidget {
@@ -79,6 +92,7 @@ class ListaPessoas extends StatefulWidget {
 
 class _ListaPessoasState extends State<ListaPessoas> {
   var listaPessoas = <PessoaModel2>[];
+  late var cUsuario = '';
   _getList() {
     API.getListItems().then((response) {
       setState(() {
@@ -102,10 +116,15 @@ class _ListaPessoasState extends State<ListaPessoas> {
   @override
   void initState() {
     super.initState();
-
     setState(() {
+      lerUsuarioMemLocal();
       _getList();
     });
+  }
+
+  lerUsuarioMemLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    cUsuario = prefs.getString(kAPI_Chave_Usuario) ?? '';
   }
 
   @override
@@ -122,7 +141,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
                   decoration: BoxDecoration(color: Colors.blue, border: Border.all(width: 0.0, color: Color.fromARGB(206, 255, 255, 255))),
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.fromLTRB(15, 50, 15, 15),
-                  child: Text("Usuário Luiz", style: Theme.of(context).textTheme.titleLarge)),
+                  child: Text("Usuário $cUsuario", style: Theme.of(context).textTheme.titleLarge)),
               Container(
                   padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                   alignment: Alignment.centerLeft,
@@ -140,22 +159,21 @@ class _ListaPessoasState extends State<ListaPessoas> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: _adicionaEditaPassageiro),
+        floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: _adicionar),
         body: Padding(
           padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-          child: _buildPassageiroLista(),
+          child: _construirLista(),
         ));
   }
 
-  Widget _buildPassageiroLista() {
-    var endereco;
+  Widget _construirLista() {
     if (_passageiroLista.isEmpty) {
       return Center(
         child: _loading ? CircularProgressIndicator() : Text("Nenhum passageiro."),
       );
     } else {
       return ListView.separated(
-        itemBuilder: _buildPassageiroItemSlidable,
+        itemBuilder: _construirItemSlidable,
         separatorBuilder: (context, index) => Divider(
           height: 20,
           thickness: 2,
@@ -165,12 +183,12 @@ class _ListaPessoasState extends State<ListaPessoas> {
     }
   }
 
-  Widget _buildPassageiroItem(BuildContext context, int index) {
+  Widget _construirItem(BuildContext context, int index) {
     final passageiro = _passageiroLista[index];
     var endereco =
         '${_passageiroLista[index].enderecoBairroPessoa ?? ''} ${_passageiroLista[index].enderecoMunicipioPessoa ?? ''} ${_passageiroLista[index].enderecoUFPessoa ?? ''} ${_passageiroLista[index].enderecoCEPPessoa ?? ''}';
     return ListTile(
-      leading: avatarPassageiro(),
+      leading: retornarAvatar(),
       title: Row(
         children: [
           Text('  ${passageiro.nomePessoa}'),
@@ -179,26 +197,12 @@ class _ListaPessoasState extends State<ListaPessoas> {
       subtitle: Text(endereco),
       trailing: Checkbox(
         value: passageiro.presencaPessoa == '1',
-        onChanged: (taMarcado) {
-          /* Navigator.push(context,
-            MaterialPageRoute(builder: (context) => FotografarPessoa())); */
-          setState(() {
-            passageiro.presencaPessoa = (taMarcado == true ? '1' : '0');
-          });
-          try {
-            API.updateItem(passageiro);
-          } catch (e) {
-            const AlertDialog(
-              title: Text("Erro"),
-              content: Text("Falha ao tentar atualizar passageiro!"),
-            );
-          }
-        },
+        onChanged: (taMarcado) => marcarDesmarcar(passageiro, taMarcado),
       ),
     );
   }
 
-  Widget _buildPassageiroItemSlidable(BuildContext context, int index) {
+  Widget _construirItemSlidable(BuildContext context, int index) {
     var endereco =
         '${_passageiroLista[index].enderecoLogradouroPessoa ?? ''}, ${_passageiroLista[index].enderecoNumeroPessoa ?? ''}, ${_passageiroLista[index].enderecoBairroPessoa ?? ''}, ${_passageiroLista[index].enderecoMunicipioPessoa ?? ''}, ${_passageiroLista[index].enderecoUFPessoa ?? ''}, ${_passageiroLista[index].enderecoCEPPessoa ?? ''}';
     var mensagem = "Olá!";
@@ -250,7 +254,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
             backgroundColor: Colors.blue,
             icon: Icons.edit,
             onPressed: (context) {
-              _adicionaEditaPassageiro(passageiroAlterado: _passageiroLista[index], index: index);
+              _editar(passageiroAlterado: _passageiroLista[index], index: index);
             },
           ),
           SlidableAction(
@@ -258,53 +262,55 @@ class _ListaPessoasState extends State<ListaPessoas> {
             backgroundColor: Colors.red,
             icon: Icons.delete,
             onPressed: (context) {
-              _removePassageiro(removePassageiro: _passageiroLista[index], index: index);
+              _remover(removePassageiro: _passageiroLista[index], index: index);
             },
           ),
         ],
       ),
-      child: _buildPassageiroItem(context, index),
+      child: _construirItem(context, index),
     );
   }
 
-  Future _adicionaEditaPassageiro({PessoaModel2? passageiroAlterado, int? index}) async {
-    PessoaModel2? passageiro =
-        await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: passageiroAlterado)));
+  Future _adicionar() async {
+    PessoaModel2? passageiro = await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: null)));
     if (passageiro != null) {
       setState(() {
-        if (index == null) {
-          try {
-            //_tabelaPassageiro.save(passageiro).then((obj) => _passageiroLista.add(obj));
-            API.insertItem(passageiro);
-          } catch (e) {
-            const AlertDialog(
-              title: Text("Erro"),
-              content: Text("Falha ao salvar novo passageiro!"),
-            );
-          }
-        } else {
-          _passageiroLista[index] = passageiro;
-          try {
-            //_tabelaPassageiro.update(passageiro);
-            API.updateItem(passageiro);
-          } catch (e) {
-            const AlertDialog(
-              title: Text("Erro"),
-              content: Text("Falha ao tentar atualizar passageiro!"),
-            );
-          }
+        try {
+          API.insertItem(passageiro);
+        } catch (e) {
+          const AlertDialog(
+            title: Text("Erro"),
+            content: Text("Falha ao salvar novo passageiro!"),
+          );
         }
       });
     }
   }
 
-  void _removePassageiro({required PessoaModel2 removePassageiro, required int index}) {
+  Future _editar({PessoaModel2? passageiroAlterado, required int index}) async {
+    PessoaModel2? passageiro =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: passageiroAlterado)));
+    if (passageiro != null) {
+      setState(() {
+        _passageiroLista[index] = passageiro;
+        try {
+          API.updateItem(passageiro);
+        } catch (e) {
+          const AlertDialog(
+            title: Text("Erro"),
+            content: Text("Falha ao tentar atualizar passageiro!"),
+          );
+        }
+      });
+    }
+  }
+
+  void _remover({required PessoaModel2 removePassageiro, required int index}) {
     setState(() {
       _passageiroLista.removeAt(index);
     });
 
     try {
-      //_tabelaPassageiro.delete(removePassageiro.id!);
       API.deleteItem(removePassageiro);
     } catch (e) {
       const AlertDialog(
@@ -319,9 +325,8 @@ class _ListaPessoasState extends State<ListaPessoas> {
         label: "Desfazer",
         onPressed: () {
           setState(() {
-            _passageiroLista.insert(index, removePassageiro);
             try {
-              //_tabelaPassageiro.update(removePassageiro);
+              _passageiroLista.insert(index, removePassageiro);
             } catch (e) {
               AlertDialog(
                 title: Text("Erro na Restauração"),
@@ -344,7 +349,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
     Navigator.pop(context);
   }
 
-  avatarPassageiro() {
+  retornarAvatar() {
 /*     try {
       return const CircleAvatar(
         foregroundImage: NetworkImage('$kAPI_URL_Arquivos/users/103.jpg'),
@@ -368,5 +373,21 @@ class _ListaPessoasState extends State<ListaPessoas> {
     }
  */
     return null;
+  }
+
+  void marcarDesmarcar(PessoaModel2 passageiro, taMarcado) {
+    /* Navigator.push(context,
+            MaterialPageRoute(builder: (context) => FotografarPessoa())); */
+    setState(() {
+      passageiro.presencaPessoa = (taMarcado == true ? '1' : '0');
+    });
+    try {
+      API.updateItem(passageiro);
+    } catch (e) {
+      const AlertDialog(
+        title: Text("Erro"),
+        content: Text("Falha ao tentar atualizar passageiro!"),
+      );
+    }
   }
 }

@@ -41,3 +41,4 @@ const kAPI_URL_Arquivos = 'http://monibus.tecnologia.ws/assets/files';
 const kAPI_URI_Base = 'http://monibus.tecnologia.ws/api';
 const kAPI_Chave_Usuario = 'lccrDataprol_usuarioAtual';
 const kAPI_Chave_Token = 'lccrDataprol_tokenAtual';
+const kAPI_Chave_Empresa = 'lccrDataprol_empresaAtual';
