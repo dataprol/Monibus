@@ -93,11 +93,6 @@ class _PassageiroFormState extends State<PassageiroForm> {
 
   @override
   Widget build(BuildContext context) {
-/*     API.consultItem(idUsuario).then((response) {
-      setState(() {
-        pessoaRecebida = jsonDecode(response.body)['data'];
-      });
-    }); */
     return Scaffold(
       appBar: AppBar(title: Text('${widget.passageiro != null ? 'Editar' : 'Adicionar'} um Passageiro')),
       body: AnnotatedRegion<SystemUiOverlayStyle>(

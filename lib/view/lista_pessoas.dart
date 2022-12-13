@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:monibus/model/empresas_model.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,16 @@ class ListaPessoas extends StatefulWidget {
 
 class _ListaPessoasState extends State<ListaPessoas> {
   var listaPessoas = <PessoaModel2>[];
-  late var cUsuario = '';
+  late var cUsuarioId = '';
+  late var cUsuarioNome = '';
+  late var cUsuarioLogin = '';
+  late var cUsuarioTipo = '';
+  late var cUsuarioIdentidade = '';
+  late var cUsuarioEmail = '';
+  late var cUsuarioTelefone = '';
+  late var cUsuarioEmpresaId = '';
+  late var cUsuarioEmpresaNome = '';
+  late var cUsuarioEmpresaIdentidad = '';
   _getList() {
     API.getListItems().then((response) {
       setState(() {
@@ -124,7 +134,16 @@ class _ListaPessoasState extends State<ListaPessoas> {
 
   lerUsuarioMemLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    cUsuario = prefs.getString(kAPI_Chave_Usuario) ?? '';
+    cUsuarioId = prefs.getString(kAPI_Chave_UsuarioId) ?? '';
+    cUsuarioNome = prefs.getString(kAPI_Chave_UsuarioNome) ?? '';
+    cUsuarioLogin = prefs.getString(kAPI_Chave_UsuarioLogin) ?? '';
+    cUsuarioTipo = prefs.getString(kAPI_Chave_UsuarioTipo) ?? '';
+    cUsuarioIdentidade = prefs.getString(kAPI_Chave_UsuarioIdentidade) ?? '';
+    cUsuarioEmail = prefs.getString(kAPI_Chave_UsuarioEmail) ?? '';
+    cUsuarioTelefone = prefs.getString(kAPI_Chave_UsuarioTelefone) ?? '';
+    cUsuarioEmpresaId = prefs.getString(kAPI_Chave_EmpresaId) ?? '';
+    cUsuarioEmpresaNome = prefs.getString(kAPI_Chave_EmpresaNome) ?? '';
+    cUsuarioEmpresaIdentidad = prefs.getString(kAPI_Chave_EmpresaNomeIdentidade) ?? '';
   }
 
   @override
@@ -141,7 +160,13 @@ class _ListaPessoasState extends State<ListaPessoas> {
                   decoration: BoxDecoration(color: Colors.blue, border: Border.all(width: 0.0, color: Color.fromARGB(206, 255, 255, 255))),
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.fromLTRB(15, 50, 15, 15),
-                  child: Text("Usuário $cUsuario", style: Theme.of(context).textTheme.titleLarge)),
+                  child: Column(
+                    children: [
+                      Text(cUsuarioNome, style: Theme.of(context).textTheme.titleLarge),
+                      Text("($cUsuarioLogin)", style: Theme.of(context).textTheme.titleLarge),
+                      Text(cUsuarioEmail, style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  )),
               Container(
                   padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                   alignment: Alignment.centerLeft,
@@ -273,6 +298,12 @@ class _ListaPessoasState extends State<ListaPessoas> {
 
   Future _adicionar() async {
     PessoaModel2? passageiro = await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: null)));
+    passageiro?.usuarioPessoa = passageiro.identidadePessoa;
+    passageiro?.empresa = Empresas(
+      idEmpresa: int.parse(cUsuarioEmpresaId),
+      nomeEmpresa: cUsuarioEmpresaNome,
+      identidadeEmpresa: cUsuarioEmpresaIdentidad,
+    );
     if (passageiro != null) {
       setState(() {
         try {

@@ -52,14 +52,14 @@ class AutenticacaoService {
 
   Future<bool> desconectarUsuario(context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(kAPI_Chave_Usuario);
+    await prefs.remove(kAPI_Chave_UsuarioNome);
     await prefs.remove(kAPI_Chave_Token);
     exit(0);
   }
 
   Future<String> lerUsuarioMemLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(kAPI_Chave_Usuario) ?? '';
+    return prefs.getString(kAPI_Chave_UsuarioNome) ?? '';
   }
 
   Future<String> lerTokenMemLocal() async {
@@ -69,7 +69,7 @@ class AutenticacaoService {
 
   Future<bool> salvarUsuarioMemLocal(String cUsuario, String cToken) async {
     final prefs = await SharedPreferences.getInstance();
-    if (await prefs.setString(kAPI_Chave_Usuario, cUsuario)) return true;
+    if (await prefs.setString(kAPI_Chave_UsuarioNome, cUsuario)) return true;
     if (await prefs.setString(kAPI_Chave_Token, cToken)) return true;
     return false;
   }
@@ -77,7 +77,7 @@ class AutenticacaoService {
   Future<bool> removerUsuarioMemLocal() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    if (await prefs.remove(kAPI_Chave_Usuario)) return true;
+    if (await prefs.remove(kAPI_Chave_UsuarioNome)) return true;
     if (await prefs.remove(kAPI_Chave_Token)) return true;
     return false;
   }

@@ -1,4 +1,6 @@
+import 'dart:collection';
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,9 @@ class TelaLogin extends StatefulWidget {
 class _TelaLoginState extends State<TelaLogin> {
   AutenticacaoService apiLogin = AutenticacaoService();
   late final TextEditingController _cUsuario, _cSenha;
-  late String _cToken;
+  late String _cToken, _cUsuarioId, _cUsuarioLogin, _cUsuarioNome;
+  late String _cUsuarioTipo, _cUsuarioIdentidade, _cUsuarioEmail, _cUsuarioTelefone;
+  var _cUsuarioEmpresa;
 
   @override
   void initState() {
@@ -236,10 +240,28 @@ class _TelaLoginState extends State<TelaLogin> {
     return loginUser;
   }
  */
-  _salvarUsuarioMemLocal() async {
+  _salvarUsuarioMemLocal(resposta) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(kAPI_Chave_Usuario, _cUsuario.text);
+    _cToken = resposta['token'];
+    _cUsuarioId = resposta['id'];
+    _cUsuarioNome = resposta['nome'];
+    _cUsuarioLogin = _cUsuario.text;
+    _cUsuarioTipo = resposta['tipo'];
+    _cUsuarioIdentidade = resposta['identidade'];
+    _cUsuarioEmail = resposta['email'];
+    _cUsuarioTelefone = resposta['telefone'];
+    _cUsuarioEmpresa = resposta['empresa'];
     prefs.setString(kAPI_Chave_Token, _cToken);
+    prefs.setString(kAPI_Chave_UsuarioId, _cUsuarioId);
+    prefs.setString(kAPI_Chave_UsuarioNome, _cUsuarioNome);
+    prefs.setString(kAPI_Chave_UsuarioLogin, _cUsuarioLogin);
+    prefs.setString(kAPI_Chave_UsuarioTipo, _cUsuarioTipo);
+    prefs.setString(kAPI_Chave_UsuarioIdentidade, _cUsuarioIdentidade);
+    prefs.setString(kAPI_Chave_UsuarioTelefone, _cUsuarioTelefone);
+    prefs.setString(kAPI_Chave_UsuarioEmail, _cUsuarioEmail);
+    prefs.setString(kAPI_Chave_EmpresaId, _cUsuarioEmpresa[0]['id']);
+    prefs.setString(kAPI_Chave_EmpresaNome, _cUsuarioEmpresa[0]['nome']);
+    prefs.setString(kAPI_Chave_EmpresaNomeIdentidade, _cUsuarioEmpresa[0]['identidade']);
   }
 
   _validarUsuario(context) {
@@ -278,11 +300,9 @@ class _TelaLoginState extends State<TelaLogin> {
       return;
     } else {
       // obter o token e armazenar
-      var resposta = resultado.getSuccess()!.data['data']['token'];
-      resposta ??= '';
-      _cToken = resposta;
-      _salvarUsuarioMemLocal();
-      if (_cToken.isNotEmpty) {
+      var resposta = resultado.getSuccess()!.data['data'];
+      if (resposta.isNotEmpty && resposta['token'].isNotEmpty) {
+        _salvarUsuarioMemLocal(resposta);
         Navigator.push(context, MaterialPageRoute(builder: (context) => const ListaPessoas()));
       }
     }
