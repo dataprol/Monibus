@@ -103,6 +103,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
   late var cUsuarioEmpresaId = '';
   late var cUsuarioEmpresaNome = '';
   late var cUsuarioEmpresaIdentidad = '';
+  late var cUsuarioEmpresaTipoRelacao = '';
 
   _getList() {
     API.getListItems().then((response) {
@@ -145,17 +146,14 @@ class _ListaPessoasState extends State<ListaPessoas> {
     cUsuarioEmpresaId = prefs.getString(kAPI_Chave_EmpresaId) ?? '';
     cUsuarioEmpresaNome = prefs.getString(kAPI_Chave_EmpresaNome) ?? '';
     cUsuarioEmpresaIdentidad = prefs.getString(kAPI_Chave_EmpresaNomeIdentidade) ?? '';
+    cUsuarioEmpresaTipoRelacao = prefs.getString(kAPI_Chave_EmpresaTipoRelacao) ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Lista de Passageiros'),
-        ),
-        drawer: Drawer(
-          backgroundColor: Colors.white,
-          child: retornarItensMenu(),
+          title: Text('Passageiros $cUsuarioEmpresaNome'),
         ),
         floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: _adicionar),
         body: Padding(
@@ -278,16 +276,17 @@ class _ListaPessoasState extends State<ListaPessoas> {
       identidadeEmpresa: cUsuarioEmpresaIdentidad,
     );
     if (passageiro != null) {
-      setState(() {
-        try {
-          API.insertItem(passageiro);
-        } catch (e) {
-          const AlertDialog(
-            title: Text("Erro"),
-            content: Text("Falha ao salvar novo passageiro!"),
-          );
-        }
-      });
+      try {
+        API.insertItem(passageiro);
+        setState(() {
+          _passageiroLista.add(passageiro);
+        });
+      } catch (e) {
+        const AlertDialog(
+          title: Text("Erro"),
+          content: Text("Falha ao salvar novo passageiro no servidor!"),
+        );
+      }
     }
   }
 
@@ -295,31 +294,30 @@ class _ListaPessoasState extends State<ListaPessoas> {
     PessoaModel2? passageiro =
         await Navigator.push(context, MaterialPageRoute(builder: (context) => PassageiroForm(passageiro: passageiroAlterado)));
     if (passageiro != null) {
-      setState(() {
-        _passageiroLista[index] = passageiro;
-        try {
-          API.updateItem(passageiro);
-        } catch (e) {
-          const AlertDialog(
-            title: Text("Erro"),
-            content: Text("Falha ao tentar atualizar passageiro!"),
-          );
-        }
-      });
+      try {
+        API.updateItem(passageiro);
+        setState(() {
+          _passageiroLista[index] = passageiro;
+        });
+      } catch (e) {
+        const AlertDialog(
+          title: Text("Erro"),
+          content: Text("Falha ao tentar atualizar passageiro no servidor!"),
+        );
+      }
     }
   }
 
   void _remover({required PessoaModel2 removePassageiro, required int index}) {
-    setState(() {
-      _passageiroLista.removeAt(index);
-    });
-
     try {
       API.deleteItem(removePassageiro);
+      setState(() {
+        _passageiroLista.removeAt(index);
+      });
     } catch (e) {
       const AlertDialog(
         title: Text("Erro"),
-        content: Text("Falha ao tentar remover passageiro!"),
+        content: Text("Falha ao tentar remover passageiro no servidor!"),
       );
     }
 
@@ -393,38 +391,5 @@ class _ListaPessoasState extends State<ListaPessoas> {
         content: Text("Falha ao tentar atualizar passageiro!"),
       );
     }
-  }
-
-  Widget retornarItensMenu() {
-    return Column(
-      children: [
-        Container(
-            decoration: BoxDecoration(color: Colors.blue, border: Border.all(width: 0.0, color: Color.fromARGB(206, 255, 255, 255))),
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.fromLTRB(15, 50, 15, 15),
-            child: Column(
-              children: [
-                Text(cUsuarioNome, style: Theme.of(context).textTheme.titleLarge),
-                Text("($cUsuarioLogin)", style: Theme.of(context).textTheme.titleLarge),
-                Text(cUsuarioEmail, style: Theme.of(context).textTheme.bodyMedium),
-                Text("Tipo: $cUsuarioTipo", style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            )),
-        Container(
-            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-            alignment: Alignment.centerLeft,
-            height: 50.0,
-            child: TextButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-              ),
-              onPressed: () => apiLogin.desconectarUsuario(context),
-              child: Row(children: [
-                const Icon(Icons.exit_to_app, color: Colors.black),
-                Text(" Sair", style: Theme.of(context).textTheme.titleMedium),
-              ]),
-            )),
-      ],
-    );
   }
 }

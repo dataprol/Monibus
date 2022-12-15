@@ -50,3 +50,4 @@ const kAPI_Chave_UsuarioEmail = 'lccrDataprol_usuarioAtualEmail';
 const kAPI_Chave_EmpresaId = 'lccrDataprol_empresaId';
 const kAPI_Chave_EmpresaNome = 'lccrDataprol_empresaNome';
 const kAPI_Chave_EmpresaNomeIdentidade = 'lccrDataprol_empresaIdentidade';
+const kAPI_Chave_EmpresaTipoRelacao = 'lccrDataprol_empresaTipoRelacao';

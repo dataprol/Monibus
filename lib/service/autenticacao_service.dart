@@ -64,9 +64,19 @@ class AutenticacaoService {
 
   Future<bool> desconectarUsuario(context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(kAPI_Chave_UsuarioNome);
     await prefs.remove(kAPI_Chave_Token);
-    exit(0);
+    await prefs.remove(kAPI_Chave_UsuarioId);
+    await prefs.remove(kAPI_Chave_UsuarioNome);
+    await prefs.remove(kAPI_Chave_UsuarioLogin);
+    await prefs.remove(kAPI_Chave_UsuarioTipo);
+    await prefs.remove(kAPI_Chave_UsuarioIdentidade);
+    await prefs.remove(kAPI_Chave_UsuarioEmail);
+    await prefs.remove(kAPI_Chave_UsuarioTelefone);
+    await prefs.remove(kAPI_Chave_EmpresaId);
+    await prefs.remove(kAPI_Chave_EmpresaNome);
+    await prefs.remove(kAPI_Chave_EmpresaNomeIdentidade);
+    await prefs.remove(kAPI_Chave_EmpresaTipoRelacao);
+    return true;
   }
 
   Future<String> lerUsuarioMemLocal() async {

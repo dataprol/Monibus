@@ -1,7 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:monibus/constantes.dart';
 import 'package:monibus/view/home.dart';
-import 'package:monibus/view/lista_pessoas.dart';
 import 'package:monibus/view/login.dart';
 import 'service/autenticacao_service.dart';
 
@@ -12,9 +12,12 @@ void main() {
 class Principal extends StatelessWidget {
   const Principal({super.key});
 
-  Future<bool> checkHome() async {
+  Future<bool> checarHome() async {
     AutenticacaoService apiLogin = AutenticacaoService();
     String token = await apiLogin.lerTokenMemLocal();
+    if (kDebugMode) {
+      print('*********** Acessou checarHome(). Token: $token');
+    }
     return token.isNotEmpty;
   }
 
@@ -27,7 +30,7 @@ class Principal extends StatelessWidget {
         primarySwatch: kCorPrimaria,
       ),
       home: FutureBuilder(
-          future: checkHome(),
+          future: checarHome(),
           builder: (context, snapshot) {
             try {
               if (!snapshot.hasData) {

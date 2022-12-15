@@ -1,31 +1,31 @@
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:ffi';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:monibus/view/home.dart';
+import 'package:monibus/model/empresas_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:another_flushbar/flushbar.dart';
-import 'package:monibus/constantes.dart';
-import 'package:monibus/view/cadastrar_pessoa.dart';
-import 'package:monibus/view/recuperar_login.dart';
+import 'home.dart';
+import 'cadastrar_pessoa.dart';
+import 'recuperar_login.dart';
+import '../constantes.dart';
 import '../model/autenticacao_model.dart';
 import '../service/autenticacao_service.dart';
-import 'lista_pessoas.dart';
 
 class TelaLogin extends StatefulWidget {
+  const TelaLogin({super.key});
+
   @override
-  _TelaLoginState createState() => _TelaLoginState();
+  TelaLoginState createState() => TelaLoginState();
 }
 
-class _TelaLoginState extends State<TelaLogin> {
+class TelaLoginState extends State<TelaLogin> {
   AutenticacaoService apiLogin = AutenticacaoService();
   late final TextEditingController _cUsuario, _cSenha;
   late String _cToken, _cUsuarioId, _cUsuarioLogin, _cUsuarioNome;
-  late String _cUsuarioTipo, _cUsuarioIdentidade, _cUsuarioEmail, _cUsuarioTelefone;
-  var _cUsuarioEmpresa;
+  late String _cUsuarioIdentidade, _cUsuarioEmail, _cUsuarioTelefone;
+  late List<dynamic> _cUsuarioEmpresa;
 
   @override
   void initState() {
@@ -39,6 +39,77 @@ class _TelaLoginState extends State<TelaLogin> {
     _cUsuario.dispose();
     _cSenha.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Stack(
+            children: <Widget>[
+              SizedBox(
+                height: double.infinity,
+                width: double.infinity,
+              ),
+              Container(
+                height: double.infinity,
+                child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 120.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        kAplicativoNome,
+                        style: TextStyle(
+                          fontFamily: 'OpenSans',
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Acesso',
+                        style: TextStyle(
+                          fontFamily: 'OpenSans',
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 30.0),
+                      _bldUsuario(),
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      _bldSenha(),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      _bldLoginBtn(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _bldForgotPasswordBtn(),
+                          SizedBox(
+                            width: 50.0,
+                          ),
+                          _bldCadastrarBtn(),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _bldUsuario() {
@@ -138,7 +209,27 @@ class _TelaLoginState extends State<TelaLogin> {
         onPressed: () {
           var login = _validarUsuario(context);
           if (login != false) {
-            _autenticarUsuario(context, login);
+            _autenticarUsuario(context, login).then(
+              (value) {
+                _cSenha.text = '';
+                _cUsuario.text = '';
+                FocusScope.of(context).unfocus();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const home()));
+              },
+            ).onError(
+              (error, stackTrace) {
+                const AlertDialog(
+                  title: Text("Erro de Autenticalção!"),
+                  content: Text('Ocorreu uma falha! Tente outra vez.'),
+                  actions: [
+                    TextButton(
+                      onPressed: null,
+                      child: Text('Ok'),
+                    ),
+                  ],
+                );
+              },
+            );
           }
         },
       ),
@@ -165,77 +256,6 @@ class _TelaLoginState extends State<TelaLogin> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
-            children: <Widget>[
-              SizedBox(
-                height: double.infinity,
-                width: double.infinity,
-              ),
-              Container(
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 120.0,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        kAplicativoNome,
-                        style: TextStyle(
-                          fontFamily: 'OpenSans',
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Acesso',
-                        style: TextStyle(
-                          fontFamily: 'OpenSans',
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 30.0),
-                      _bldUsuario(),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _bldSenha(),
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      _bldLoginBtn(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _bldForgotPasswordBtn(),
-                          SizedBox(
-                            width: 50.0,
-                          ),
-                          _bldCadastrarBtn(),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
 /*   _lerUsuarioMemLocal() {
     var loginUser = apiLogin.lerUsuarioMemLocal();
     return loginUser;
@@ -247,7 +267,6 @@ class _TelaLoginState extends State<TelaLogin> {
     _cUsuarioId = resposta['id'];
     _cUsuarioNome = resposta['nome'];
     _cUsuarioLogin = _cUsuario.text;
-    _cUsuarioTipo = resposta['tipo'];
     _cUsuarioIdentidade = resposta['identidade'];
     _cUsuarioEmail = resposta['email'];
     _cUsuarioTelefone = resposta['telefone'];
@@ -256,13 +275,13 @@ class _TelaLoginState extends State<TelaLogin> {
     prefs.setString(kAPI_Chave_UsuarioId, _cUsuarioId);
     prefs.setString(kAPI_Chave_UsuarioNome, _cUsuarioNome);
     prefs.setString(kAPI_Chave_UsuarioLogin, _cUsuarioLogin);
-    prefs.setString(kAPI_Chave_UsuarioTipo, _cUsuarioTipo);
     prefs.setString(kAPI_Chave_UsuarioIdentidade, _cUsuarioIdentidade);
     prefs.setString(kAPI_Chave_UsuarioTelefone, _cUsuarioTelefone);
     prefs.setString(kAPI_Chave_UsuarioEmail, _cUsuarioEmail);
     prefs.setString(kAPI_Chave_EmpresaId, _cUsuarioEmpresa[0]['id']);
     prefs.setString(kAPI_Chave_EmpresaNome, _cUsuarioEmpresa[0]['nome']);
     prefs.setString(kAPI_Chave_EmpresaNomeIdentidade, _cUsuarioEmpresa[0]['identidade']);
+    prefs.setString(kAPI_Chave_EmpresaTipoRelacao, _cUsuarioEmpresa[0]['tipo']);
   }
 
   _validarUsuario(context) {
@@ -304,7 +323,6 @@ class _TelaLoginState extends State<TelaLogin> {
       var resposta = resultado.getSuccess()!.data['data'];
       if (resposta.isNotEmpty && resposta['token'].isNotEmpty) {
         _salvarUsuarioMemLocal(resposta);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const home()));
       }
     }
   }
@@ -324,8 +342,6 @@ class _TelaLoginState extends State<TelaLogin> {
       if (kDebugMode) {
         print('Resposta positiva: $resposta');
       }
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const ListaPassageiros()));
     }
   } */
 }

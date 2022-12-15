@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:string_validator/string_validator.dart';
 import '../constantes.dart';
 import '../model/pessoas_model2.dart';
+import 'lista_pessoas.dart';
 import '../service/autenticacao_service.dart';
 
 class home extends StatefulWidget {
@@ -20,22 +21,27 @@ class _homeState extends State<home> {
   late var cUsuarioId = '';
   late var cUsuarioNome = '';
   late var cUsuarioLogin = '';
-  late var cUsuarioTipo = '';
+  //late var cUsuarioTipo = '';
   late var cUsuarioIdentidade = '';
   late var cUsuarioEmail = '';
   late var cUsuarioTelefone = '';
   late var cUsuarioEmpresaId = '';
   late var cUsuarioEmpresaNome = '';
   late var cUsuarioEmpresaIdentidad = '';
+  late var cUsuarioEmpresaTipoRelacao = '';
 
   AutenticacaoService apiLogin = AutenticacaoService();
+
+  _homeState() {
+    lerUsuarioMemLocal();
+  }
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      lerUsuarioMemLocal();
+/*     setState(() {
     });
+ */
   }
 
   @override
@@ -46,18 +52,25 @@ class _homeState extends State<home> {
         ),
         drawer: Drawer(
           backgroundColor: Colors.white,
-          child: retornarItensMenu(),
+          child: retornarItensMenu(context),
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
           child: Container(
             alignment: AlignmentDirectional.center,
-            child: Text('Bem vindo(a), $cUsuarioNome!'),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Bem vindo(a), $cUsuarioNome!'),
+                Divider(),
+                retornaOpcoesPainel(),
+              ],
+            ),
           ),
         ));
   }
 
-  Widget retornarItensMenu() {
+  Widget retornarItensMenu(context) {
     return Column(
       children: [
         Container(
@@ -69,7 +82,7 @@ class _homeState extends State<home> {
                 Text(cUsuarioNome, style: Theme.of(context).textTheme.titleLarge),
                 Text("($cUsuarioLogin)", style: Theme.of(context).textTheme.titleLarge),
                 Text(cUsuarioEmail, style: Theme.of(context).textTheme.bodyMedium),
-                Text("Tipo: $cUsuarioTipo", style: Theme.of(context).textTheme.bodyMedium),
+                Text("Tipo de relação: $cUsuarioEmpresaTipoRelacao", style: Theme.of(context).textTheme.bodyMedium),
               ],
             )),
         Container(
@@ -80,7 +93,13 @@ class _homeState extends State<home> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
               ),
-              onPressed: () => apiLogin.desconectarUsuario(context),
+              onPressed: () {
+                apiLogin.desconectarUsuario(context).then((value) {
+                  print('***** saindo...');
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                });
+              },
               child: Row(children: [
                 const Icon(Icons.exit_to_app, color: Colors.black),
                 Text(" Sair", style: Theme.of(context).textTheme.titleMedium),
@@ -92,15 +111,39 @@ class _homeState extends State<home> {
 
   lerUsuarioMemLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    cUsuarioId = prefs.getString(kAPI_Chave_UsuarioId) ?? '';
-    cUsuarioNome = prefs.getString(kAPI_Chave_UsuarioNome) ?? '';
-    cUsuarioLogin = prefs.getString(kAPI_Chave_UsuarioLogin) ?? '';
-    cUsuarioTipo = prefs.getString(kAPI_Chave_UsuarioTipo) ?? '';
-    cUsuarioIdentidade = prefs.getString(kAPI_Chave_UsuarioIdentidade) ?? '';
-    cUsuarioEmail = prefs.getString(kAPI_Chave_UsuarioEmail) ?? '';
-    cUsuarioTelefone = prefs.getString(kAPI_Chave_UsuarioTelefone) ?? '';
-    cUsuarioEmpresaId = prefs.getString(kAPI_Chave_EmpresaId) ?? '';
-    cUsuarioEmpresaNome = prefs.getString(kAPI_Chave_EmpresaNome) ?? '';
-    cUsuarioEmpresaIdentidad = prefs.getString(kAPI_Chave_EmpresaNomeIdentidade) ?? '';
+    setState(() {
+      cUsuarioId = prefs.getString(kAPI_Chave_UsuarioId) ?? '';
+      cUsuarioNome = prefs.getString(kAPI_Chave_UsuarioNome) ?? '';
+      cUsuarioLogin = prefs.getString(kAPI_Chave_UsuarioLogin) ?? '';
+      //cUsuarioTipo = prefs.getString(kAPI_Chave_UsuarioTipo) ?? '';
+      cUsuarioIdentidade = prefs.getString(kAPI_Chave_UsuarioIdentidade) ?? '';
+      cUsuarioEmail = prefs.getString(kAPI_Chave_UsuarioEmail) ?? '';
+      cUsuarioTelefone = prefs.getString(kAPI_Chave_UsuarioTelefone) ?? '';
+      cUsuarioEmpresaId = prefs.getString(kAPI_Chave_EmpresaId) ?? '';
+      cUsuarioEmpresaNome = prefs.getString(kAPI_Chave_EmpresaNome) ?? '';
+      cUsuarioEmpresaIdentidad = prefs.getString(kAPI_Chave_EmpresaNomeIdentidade) ?? '';
+      cUsuarioEmpresaTipoRelacao = prefs.getString(kAPI_Chave_EmpresaTipoRelacao) ?? '';
+    });
+  }
+
+  retornaOpcoesPainel() {
+    if (cUsuarioEmpresaTipoRelacao == 'A') {
+      return Column(
+        children: [
+          Container(
+            child: ElevatedButton(
+              child: Text('Passageiros'),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ListaPessoas())),
+            ),
+          )
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          Text('Você é passageiro(a) da $cUsuarioEmpresaNome.'),
+        ],
+      );
+    }
   }
 }

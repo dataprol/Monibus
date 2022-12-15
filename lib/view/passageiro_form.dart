@@ -55,7 +55,6 @@ class _PassageiroFormState extends State<PassageiroForm> {
   @override
   void initState() {
     super.initState();
-
     // Verifica se foi enviado algum passageiro para edição
     // Caso queira editar, copia-se o passageiro
     if (widget.passageiro != null) {
