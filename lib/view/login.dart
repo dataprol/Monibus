@@ -5,6 +5,7 @@ import 'dart:ffi';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:monibus/view/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:monibus/constantes.dart';
@@ -271,7 +272,7 @@ class _TelaLoginState extends State<TelaLogin> {
     if (!login.validoUsuario) {
       Flushbar(
         title: 'Usuário inválido!',
-        message: 'O nome de usuário não pode conter somente números!',
+        message: 'O nome de usuário deve conter o mínimo de 3 caracteres!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
@@ -279,7 +280,7 @@ class _TelaLoginState extends State<TelaLogin> {
       Flushbar(
         title: 'Senha inválida!',
         message:
-            'A senha precisa ter o mínimo de 8 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
+            'A senha precisa ter o mínimo de 6 caracteres contendo letras e números e pelo menos um caracter que não seja nem letra nem número!',
         duration: const Duration(seconds: 5),
       ).show(context);
       lValido = false;
@@ -303,7 +304,7 @@ class _TelaLoginState extends State<TelaLogin> {
       var resposta = resultado.getSuccess()!.data['data'];
       if (resposta.isNotEmpty && resposta['token'].isNotEmpty) {
         _salvarUsuarioMemLocal(resposta);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const ListaPessoas()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const home()));
       }
     }
   }

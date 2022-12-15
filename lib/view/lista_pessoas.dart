@@ -103,6 +103,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
   late var cUsuarioEmpresaId = '';
   late var cUsuarioEmpresaNome = '';
   late var cUsuarioEmpresaIdentidad = '';
+
   _getList() {
     API.getListItems().then((response) {
       setState(() {
@@ -154,35 +155,7 @@ class _ListaPessoasState extends State<ListaPessoas> {
         ),
         drawer: Drawer(
           backgroundColor: Colors.white,
-          child: Column(
-            children: [
-              Container(
-                  decoration: BoxDecoration(color: Colors.blue, border: Border.all(width: 0.0, color: Color.fromARGB(206, 255, 255, 255))),
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.fromLTRB(15, 50, 15, 15),
-                  child: Column(
-                    children: [
-                      Text(cUsuarioNome, style: Theme.of(context).textTheme.titleLarge),
-                      Text("($cUsuarioLogin)", style: Theme.of(context).textTheme.titleLarge),
-                      Text(cUsuarioEmail, style: Theme.of(context).textTheme.bodyMedium),
-                    ],
-                  )),
-              Container(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                  alignment: Alignment.centerLeft,
-                  height: 50.0,
-                  child: TextButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                    ),
-                    onPressed: () => apiLogin.desconectarUsuario(context),
-                    child: Row(children: [
-                      const Icon(Icons.exit_to_app, color: Colors.black),
-                      Text(" Sair", style: Theme.of(context).textTheme.titleMedium),
-                    ]),
-                  )),
-            ],
-          ),
+          child: retornarItensMenu(),
         ),
         floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: _adicionar),
         body: Padding(
@@ -420,5 +393,38 @@ class _ListaPessoasState extends State<ListaPessoas> {
         content: Text("Falha ao tentar atualizar passageiro!"),
       );
     }
+  }
+
+  Widget retornarItensMenu() {
+    return Column(
+      children: [
+        Container(
+            decoration: BoxDecoration(color: Colors.blue, border: Border.all(width: 0.0, color: Color.fromARGB(206, 255, 255, 255))),
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.fromLTRB(15, 50, 15, 15),
+            child: Column(
+              children: [
+                Text(cUsuarioNome, style: Theme.of(context).textTheme.titleLarge),
+                Text("($cUsuarioLogin)", style: Theme.of(context).textTheme.titleLarge),
+                Text(cUsuarioEmail, style: Theme.of(context).textTheme.bodyMedium),
+                Text("Tipo: $cUsuarioTipo", style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            )),
+        Container(
+            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+            alignment: Alignment.centerLeft,
+            height: 50.0,
+            child: TextButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+              ),
+              onPressed: () => apiLogin.desconectarUsuario(context),
+              child: Row(children: [
+                const Icon(Icons.exit_to_app, color: Colors.black),
+                Text(" Sair", style: Theme.of(context).textTheme.titleMedium),
+              ]),
+            )),
+      ],
+    );
   }
 }

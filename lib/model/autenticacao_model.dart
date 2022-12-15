@@ -26,8 +26,7 @@ class AutenticacaoModel {
         "password": senha,
       };
 
-  bool get validoSenha =>
-      senha != null && senha!.isNotEmpty && senha!.length > 5;
+  bool get validoSenha => senha != null && senha!.isNotEmpty && senha!.length > 5;
 
   bool get validoSenhaNova =>
       senha != null &&
@@ -37,9 +36,5 @@ class AutenticacaoModel {
       !validador.isAlpha(senha!) &&
       validador.isAlphanumeric(senha!);
 
-  bool get validoUsuario =>
-      usuario != null &&
-      usuario!.length > 3 &&
-      usuario!.isNotEmpty &&
-      !validador.isNumeric(usuario!);
+  bool get validoUsuario => usuario != null && usuario!.length > 3 && usuario!.isNotEmpty;
 }

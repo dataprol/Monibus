@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monibus/constantes.dart';
+import 'package:monibus/view/home.dart';
 import 'package:monibus/view/lista_pessoas.dart';
 import 'package:monibus/view/login.dart';
 import 'service/autenticacao_service.dart';
@@ -32,7 +33,7 @@ class Principal extends StatelessWidget {
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
-              return (snapshot.data ?? false) ? const ListaPessoas() : TelaLogin();
+              return (snapshot.data ?? false) ? const home() : TelaLogin();
             } catch (e) {
               return const AlertDialog(title: Text("Erro Interno"), content: Text("O aplicativo teve um problema imprevisto! "));
             }

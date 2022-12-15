@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monibus/constantes.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,10 +25,21 @@ class AutenticacaoService {
       response = await _api.post('$kAPI_URI_Base/usuarios/vlogin', data: {'username': '${login.usuario}', 'password': '${login.senha}'});
       var retorno = response.data['data']['token'];
       retorno ??= '';
+      if (kDebugMode) {
+        print(response.statusCode);
+        print(response.statusMessage);
+        print(response.data['data']);
+      }
       return Success(response);
     } on DioError catch (erro) {
       var retorno = erro.response?.data['data']['message'];
       retorno ??= erro.response.toString();
+      if (kDebugMode) {
+        print(erro.response?.statusCode);
+        print(erro.response?.statusMessage);
+        print(erro.error);
+        print(erro.message);
+      }
       return Error((retorno));
     }
   }
